@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot>
+<!-- 
+    <gazebo reference="workspace">
+        <self_collide>1</self_collide>
+    </gazebo> -->
+
+    <!-- <gazebo reference="base_link">
+        <self_collide>1</self_collide>
+    </gazebo> -->
+
+    <gazebo reference="link_1">
+        <self_collide>1</self_collide>
+    </gazebo>
+
+    <gazebo reference="link_2">
+        <self_collide>1</self_collide>
+    </gazebo>
+
+    <gazebo reference="link_3">
+        <self_collide>1</self_collide>
+    </gazebo>
+
+    <gazebo reference="link_4">
+        <self_collide>1</self_collide>
+    </gazebo>
+
+    <gazebo reference="link_5">
+        <self_collide>1</self_collide>
+    </gazebo>
+
+    <gazebo reference="link_6">
+        <self_collide>1</self_collide>
+    </gazebo>
+
+</robot>

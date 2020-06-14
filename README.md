@@ -1,1 +1,1 @@
-# emu_manipulator
+# emu 6-Axis Manipulator
