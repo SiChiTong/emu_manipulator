@@ -1,7 +1,14 @@
 <?xml version="1.0"?>
-<robot name="emu_manipulator" xmlns:xacro="http://www.ros.org/wiki/xacro">
-    
+<robot name="emu" xmlns:xacro="http://www.ros.org/wiki/xacro">
+     <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/emu</robotNamespace>
+        </plugin>
+    </gazebo>
     <xacro:include filename="$(find emu_description)/urdf/emu.gazebo"/>
+    <xacro:include filename="$(find emu_description)/urdf/camera.xacro"/>
+
+    <xacro:emu_cam parent = "link_4" offset_from_parent = "-0.039 0.109 0.444 " rotate_from_parent = "1.57075 0 3.14159265359"/>
 
 <!--=================== LINKS ========================-->
     <link name="world"/>
@@ -184,7 +191,7 @@
         <child link="link_1"/>
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1066" upper = "3.1066" effort = "50" velocity = "10"/>
-        
+        <dynamics damping="0.7"/>
     </joint>
 
     <joint name="joint_2" type="revolute">
@@ -193,6 +200,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-2.917" upper = "1.703" effort = "50" velocity = "10"/>
         <origin rpy="1.57075 0 0" xyz = "0.12596 0 0.30767"/>
+        <dynamics damping="0.8"/>
     </joint>
 
     <joint name="joint_3" type="revolute">
@@ -201,6 +209,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-1.4312" upper = "4.1190" effort = "50" velocity = "10"/>
         <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
+        <dynamics damping="0.7"/>
     </joint>
 
     <joint name="joint_4" type="revolute">
@@ -209,6 +218,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
         <origin rpy="1.57075 0 0" xyz = "0.05 0 0"/>
+        <dynamics damping="0.7"/>
     </joint>
 
     <joint name="joint_5" type="revolute">
@@ -217,6 +227,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
         <origin rpy="-1.57075 0 0" xyz = "0 0 0.466"/>
+        <dynamics damping="0.2"/>
     </joint>
 
     <joint name="joint_6" type="revolute">
@@ -225,6 +236,73 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
         <origin rpy="1.57075 0 0" xyz = "0 0 0"/>
+        <dynamics damping="0.2"/>
     </joint>
+
+    <transmission name="tran1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran4">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran5">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran6">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
 
 </robot>
