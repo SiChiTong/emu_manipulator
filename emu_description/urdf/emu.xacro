@@ -22,17 +22,21 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/work_space.STL" scale="1 1 1"/>
+				<mesh filename="$(find emu_description)/meshes/work_plane.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
+            <origin xyz = "0 0 0" rpy = "0 0 0"/>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/work_space.STL" scale="1 1 1"/>
+                <mesh filename="$(find emu_description)/meshes/work_plane.STL" scale="1 1 1"/>
             </geometry>
         </visual>
     </link>
     
-    
+    <gazebo reference="workspace">
+        
+        <!-- <material>workspace</material> -->
+    </gazebo>
 
     <link name="base_link">
 		<inertial>

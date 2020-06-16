@@ -2,7 +2,7 @@
 <robot>
 
     <gazebo reference="workspace">
-        <material>Gazebo/Grey</material>
+        <!-- <material>Gazebo/Grey</material> -->
     </gazebo>
 
     <gazebo reference="base_link">

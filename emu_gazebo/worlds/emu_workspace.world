@@ -1,5 +1,60 @@
+<?xml version="1.0" ?>
 <sdf version='1.6'>
   <world name='default'>
+    <model name="green_bin">
+      <pose>1.5 1.5 0.0  0 0 0</pose>
+      <link name="body">
+          <inertial>
+            <pose>0.2 0 00.3 0 0 0</pose>
+            <mass>0.3</mass>
+            <inertia>
+              <ixx>0.004878</ixx>
+              <ixy>0.004878</ixy>
+              <ixz>0.006878</ixz>
+              <iyy>0.00090164</iyy>
+              <iyz>-0.00014394</iyz>
+              <izz>0.00042946</izz>
+            </inertia>
+          </inertial>
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://meshes/bin_green.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name='collision'>
+          <geometry>
+            <mesh><uri>model://meshes/bin_green.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="green_stack">
+      <pose>2 2 0.0  0 0 0</pose>
+      <link name="body">
+          <inertial>
+            <pose>0.2 0 00.05 0 0 0</pose>
+            <mass>1</mass>
+            <inertia>
+              <ixx>0.004878</ixx>
+              <ixy>0.004878</ixy>
+              <ixz>0.006878</ixz>
+              <iyy>0.00090164</iyy>
+              <iyz>-0.00014394</iyz>
+              <izz>0.00042946</izz>
+            </inertia>
+          </inertial>
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://meshes/bin_stack_green.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name='collision'>
+          <geometry>
+            <mesh><uri>model://meshes/bin_stack_green.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
     <light name='sun' type='directional'>
       <cast_shadows>1</cast_shadows>
       <pose frame=''>0 0 10 0 -0 0</pose>
