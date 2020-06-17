@@ -8,7 +8,7 @@
     <xacro:include filename="$(find emu_description)/urdf/emu.gazebo"/>
     <xacro:include filename="$(find emu_description)/urdf/camera.xacro"/>
 
-    <xacro:emu_cam parent = "link_4" offset_from_parent = "-0.039 0.109 0.444 " rotate_from_parent = "1.57075 0 3.14159265359"/>
+    <xacro:emu_cam parent = "link_4" offset_from_parent = "0.0 0.109 0.444 " rotate_from_parent = "0 0 1.57075"/>
 
 <!--=================== LINKS ========================-->
     <link name="world"/>
