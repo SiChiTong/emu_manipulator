@@ -1,20 +1,10 @@
 <?xml version="1.0"?>
-<robot name="emu" xmlns:xacro="http://www.ros.org/wiki/xacro">
-     <gazebo>
-        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-            <robotNamespace>/emu</robotNamespace>
-        </plugin>
-    </gazebo>
-    <xacro:include filename="$(find emu_description)/urdf/emu.gazebo"/>
-    <xacro:include filename="$(find emu_description)/urdf/camera.xacro"/>
-
-    <xacro:emu_cam parent = "link_4" offset_from_parent = "0.0 0.109 0.444 " rotate_from_parent = "0 0 1.57075"/>
-
+<robot name="emu">
 <!--=================== LINKS ========================-->
     <link name="world"/>
 
     <link name="workspace">
-        <inertial>
+        <!-- <inertial>
 			<origin xyz = "0 0 0"/>
 			<mass value = "10"/>
 			<inertia ixx = "0.02107003" iyy = "0.04864817" izz = "0.05239187" ixy = "0.00000013" ixz = "0.0149951" iyz = "-0.00000032"/>
@@ -22,22 +12,17 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/work_plane.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/work_plane.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <origin xyz = "0 0 0" rpy = "0 0 0"/>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/work_plane.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/work_plane.STL" scale="1 1 1"/>
             </geometry>
         </visual>
     </link>
-    
-    <gazebo reference="workspace">
-        
-        <!-- <material>workspace</material> -->
-    </gazebo>
-
+     -->
     <link name="base_link">
 		<inertial>
 			<origin xyz = "0.03581298 0.00000140 0.07057116"/>
@@ -47,12 +32,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Base_link_c.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/collision/Base_link_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Base_link.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/Base_link.STL" scale="1 1 1"/>
             </geometry>
         </visual>
     </link>
@@ -66,12 +51,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link1_c.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/collision/Link1_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link1.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/Link1.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0.12596 0 0.30767"/>
         </visual>
@@ -86,12 +71,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link2_c.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/collision/Link2_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link2.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/Link2.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
         </visual>
@@ -106,12 +91,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link3_c.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/collision/Link3_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link3.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/Link3.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0.05 0 0"/>
         </visual>
@@ -126,12 +111,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link4_c.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/collision/Link4_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link4.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/Link4.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="-1.57075 0 0" xyz = "0 0 0.466"/>
         </visual>
@@ -146,12 +131,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link5_c.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/collision/Link5_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link5.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/Link5.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0 0 0"/>
         </visual>
@@ -166,12 +151,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link6_c.STL" scale="1 1 1"/>
+				<mesh filename="/meshes/collision/Link6_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link6.STL" scale="1 1 1"/>
+                <mesh filename="/meshes/Link6.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="0 0 0" xyz = "0 0 0.121"/>
         </visual>
@@ -194,7 +179,7 @@
         <parent link="base_link"/>
         <child link="link_1"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-3.1066" upper = "3.1066" effort = "1000" velocity = "1000"/>
+        <limit lower = "-3.1066" upper = "3.1066" effort = "50" velocity = "10"/>
         <dynamics damping="0.7"/>
     </joint>
 
@@ -202,25 +187,25 @@
         <parent link="link_1"/>
         <child link="link_2"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-2.917" upper = "1.703" effort = "1000" velocity = "1000"/>
+        <limit lower = "-2.917" upper = "1.703" effort = "50" velocity = "10"/>
         <origin rpy="1.57075 0 0" xyz = "0.12596 0 0.30767"/>
-        <dynamics damping="1"/>
+        <dynamics damping="0.8"/>
     </joint>
 
     <joint name="joint_3" type="revolute">
         <parent link="link_2"/>
         <child link="link_3"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-1.4312" upper = "4.1190" effort = "1000" velocity = "1000"/>
+        <limit lower = "-1.4312" upper = "4.1190" effort = "50" velocity = "10"/>
         <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
-        <dynamics damping="1"/>
+        <dynamics damping="0.7"/>
     </joint>
 
     <joint name="joint_4" type="revolute">
         <parent link="link_3"/>
         <child link="link_4"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "1000"/>
+        <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
         <origin rpy="1.57075 0 0" xyz = "0.05 0 0"/>
         <dynamics damping="0.7"/>
     </joint>
@@ -229,7 +214,7 @@
         <parent link="link_4"/>
         <child link="link_5"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "1000"/>
+        <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
         <origin rpy="-1.57075 0 0" xyz = "0 0 0.466"/>
         <dynamics damping="0.2"/>
     </joint>
@@ -240,73 +225,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
         <origin rpy="1.57075 0 0" xyz = "0 0 0"/>
-        <dynamics damping="0"/>
+        <dynamics damping="0.2"/>
     </joint>
-
-    <transmission name="tran1">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint_1">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor1">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-            <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-    </transmission>
-
-    <transmission name="tran2">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint_2">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor2">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-            <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-    </transmission>
-
-    <transmission name="tran3">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint_3">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor3">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-            <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-    </transmission>
-
-    <transmission name="tran4">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint_4">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor4">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-            <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-    </transmission>
-
-    <transmission name="tran5">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint_5">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor5">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-            <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-    </transmission>
-
-    <transmission name="tran6">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint_6">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor6">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-            <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-    </transmission>
 
 </robot>

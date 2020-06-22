@@ -6,7 +6,7 @@
 
 	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
 	output="screen" ns="/emu" 
-	args="qd1_controller qd2_controller qd3_controller qd4_controller qd5_controller qd6_controller joint_state_controller"/>
+	args="q1_controller q2_controller q3_controller q4_controller q5_controller q6_controller joint_state_controller"/>
 	
 
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
