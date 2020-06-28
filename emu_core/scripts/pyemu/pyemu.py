@@ -11,8 +11,8 @@ class EmuRobot:
         self.joint_limit = np.matrix('-3.1066,3.1066;-2.917,1.703;-1.4312,4.119;-3.1067,3.1067;-3.1067,3.1067;-3.1067,3.1067')
         
     def __str__(self):
-        return ('eμ Robot')
-    
+        return ('emu Robot')
+
     def getTransform(self, config, link_num = None):
         """
         Get the homogeneous transformation matrix of link <link_num> with respect to base. (<num_link> is not python index) 
@@ -93,8 +93,11 @@ class EmuRobot:
         return lastq
 
     def getCartesianJog(self, q_now, increment, numDof = 6):
-        return q_now.reshape(6,1) + np.linalg.inv(self.getJacobian( q_now, numDof))*increment.reshape(6,1)
+        return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
     
+    def getToolJog(self, q_now, increment, numDof = 6):
+        # return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
+        return 0
 if __name__ == '__main__':
     a = emuRobot()
     tf = np.matrix('1 0 0 -0.5;0 1 0 0;0 0 1 0.5;0 0 0 1')

@@ -22,14 +22,17 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/work_plane.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/work_plane.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <origin xyz = "0 0 0" rpy = "0 0 0"/>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/work_plane.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/work_plane.STL" scale="1 1 1"/>
             </geometry>
+            <material name="Grey">
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
         </visual>
     </link>
     
@@ -47,14 +50,16 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Base_link_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/collision/Base_link_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Base_link.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/Base_link.STL" scale="1 1 1"/>
             </geometry>
-        </visual>
+            <material name="Grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material></visual>
     </link>
 
     <link name="link_1">
@@ -66,15 +71,17 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link1_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/collision/Link1_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link1.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/Link1.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0.12596 0 0.30767"/>
-        </visual>
+            <material name="Grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material></visual>
     </link>
 
     <link name="link_2">
@@ -86,15 +93,17 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link2_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/collision/Link2_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link2.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/Link2.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
-        </visual>
+            <material name="Grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material></visual>
     </link>
 
     <link name="link_3">
@@ -106,15 +115,17 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link3_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/collision/Link3_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link3.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/Link3.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0.05 0 0"/>
-        </visual>
+            <material name="Grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material></visual>
     </link>
 
     <link name="link_4">
@@ -126,15 +137,17 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link4_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/collision/Link4_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link4.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/Link4.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="-1.57075 0 0" xyz = "0 0 0.466"/>
-        </visual>
+            <material name="Grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material></visual>
     </link>
 
     <link name="link_5">
@@ -146,15 +159,17 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link5_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/collision/Link5_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link5.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/Link5.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0 0 0"/>
-        </visual>
+            <material name="Grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material></visual>
     </link>
 
     <link name="link_6">
@@ -166,7 +181,7 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="$(find emu_description)/meshes/collision/Link6_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/collision/Link6_c.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
@@ -174,7 +189,9 @@
                 <mesh filename="$(find emu_description)/meshes/Link6.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="0 0 0" xyz = "0 0 0.121"/>
-        </visual>
+            <material name="Grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material></visual>
     </link>
 
 <!--=================== JOINTS ========================-->
@@ -195,7 +212,7 @@
         <child link="link_1"/>
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1066" upper = "3.1066" effort = "1000" velocity = "1000"/>
-        <dynamics damping="0.7"/>
+        <dynamics damping="0.1"/>
     </joint>
 
     <joint name="joint_2" type="revolute">
@@ -204,7 +221,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-2.917" upper = "1.703" effort = "1000" velocity = "1000"/>
         <origin rpy="1.57075 0 0" xyz = "0.12596 0 0.30767"/>
-        <dynamics damping="1"/>
+        <dynamics damping="0.1"/>
     </joint>
 
     <joint name="joint_3" type="revolute">
@@ -213,7 +230,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-1.4312" upper = "4.1190" effort = "1000" velocity = "1000"/>
         <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
-        <dynamics damping="1"/>
+        <dynamics damping="0.1"/>
     </joint>
 
     <joint name="joint_4" type="revolute">
@@ -222,7 +239,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "1000"/>
         <origin rpy="1.57075 0 0" xyz = "0.05 0 0"/>
-        <dynamics damping="0.7"/>
+        <dynamics damping="0.03"/>
     </joint>
 
     <joint name="joint_5" type="revolute">
@@ -231,7 +248,7 @@
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "1000"/>
         <origin rpy="-1.57075 0 0" xyz = "0 0 0.466"/>
-        <dynamics damping="0.2"/>
+        <dynamics damping="0.01"/>
     </joint>
 
     <joint name="joint_6" type="revolute">
