@@ -17,7 +17,9 @@ class Emuart:
     def __init__(self, port, baudrate = 1000000, device = "Emulator"):
         try:
             self.device = device
-            self.ser = serial.Serial(port = port, baudrate = baudrate)
+            self.port = port
+            self.baudrate = baudrate
+            self.ser = serial.Serial(port = port, baudrate = baudrate, timeout = 1)
             a = ("{} is connected via {}".format(self.device, self.ser.portstr))
             cprint (' ','white','on_green',end = ' ')
             # self.ser.set_buffer_size(rx_size = 12800, tx_size = 12800)
@@ -30,7 +32,7 @@ class Emuart:
             self.initialized = 0
 
     def __str__(self):
-        return self.device
+        return self.device+'\n'+'\tport: '+self.port+'\n'+'\tbaudrate: '+str(self.baudrate)+'\n'
 
     def flush(self):
         self.ser.reset_input_buffer()
@@ -47,7 +49,7 @@ class Emuart:
     def close(self):
         self.ser.close()
 
-    def initialized(self):
+    def isInitialized(self):
         return self.initialized
     
     def readRaw(self):
@@ -71,15 +73,39 @@ class Emuart:
                     return command, data #the data is right
             else:
                 self.ser.read() #clear the buffer until it pass if statement
-            return 0 #it's not start byte 2
+            return 16, -2 #it's not start byte 2
         else:
             self.ser.read() #clear the buffer until it pass if statement
-        return 0 #it's not start byte 1
+        return 16, -1 #it's not start byte 1
 
     def read(self):
         m,n = self.readRaw()
-        if m == 88: return bytes(n).decode()
-        elif m == 11: return 0
+        if m == 88: 
+            return bytes(n).decode()
+        elif m == 0x0A:
+            q, status, st = [], [], 0
+            for _ in range(6):
+                q_i = n[st:st+4]
+                q.append(struct.unpack('>f', bytes(q_i))[0])
+                st = st+4
+            for _ in range(2):
+                status =[n[-2], n[-1]]
+            return [q, status]
+        elif m == 0x0B: 
+            q, v, status, st = [], [], [], 0
+            for _ in range(6):
+                q_i = n[st:st+4]
+                q.append(struct.unpack('>f', bytes(q_i))[0])
+                st = st+4
+            for _ in range(6):
+                v_i = n[st:st+4]
+                v.append(struct.unpack('>f', bytes(v_i))[0])
+                st = st+4
+            for _ in range(2):
+                status =[n[-2], n[-1]]
+            return [q, v, status]
+        elif m == 16: 
+            return -1
 
     def write(self, command, data):    
         header = [0x7E, 0x77, command, len(data)]
@@ -94,25 +120,39 @@ class Emuart:
         self.write(40+jointNum, singleTo4(speed))
 
     def moveRelative(self, jointNum, increment, duration):
+        print(increment, duration)
         increment = floatToBin(increment)
         duration = floatToBin(duration)
-        print(increment, duration)
         self.write(50+jointNum, singleTo4(increment)+singleTo4(duration))
         
-    def requestJointStates(self, jointNum, increment, duration):
-        self.write(0x0A, [])
-        c,d = self.readRaw()
-        
-        return c,d
-        
+    def requestJointStates(self, _type = 'simple'):
+        if _type is 'simple':
+            self.write(0x0C, [])
+        elif _type is 'full':
+            self.write(0x0D, [])
+        time.sleep(0.1)
+        d = self.read()
+        return d
+    
+    def setLD3(state):
+        self.write(0x93, [state])
+
+    def setLD4(state):
+        self.write(0x94, [state])
 
 if __name__ == "__main__":
-    et = Emuart('/dev/ttyTHS1')
-    while et.initialized:
+    et = Emuart('COM5')
+    # et = Emuart('dev/ttyTHS1')
+    print (et)
+    time.sleep(0.5)
+    while et.isInitialized:
         # n = et.read()
-        jN = input("J >>")
+        # jN = input("J >>")
+        # cmd = input("I >>")
+        # et.writeOls(int(jN), float(cmd))
+        print (et.requestJointStates())
         cmd = input("I >>")
-        et.writeOls(int(jN), float(cmd))
-        # et.writeJointJog(int(jN), float(cmd), 1)
+        et.moveRelative(1, float(cmd), 0.6)
+        time.sleep(0.5)
 
 
