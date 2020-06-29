@@ -134,10 +134,10 @@ class Emuart:
         d = self.read()
         return d
     
-    def setLD3(state):
+    def setLD3(self, state):
         self.write(0x93, [state])
 
-    def setLD4(state):
+    def setLD4(self, state):
         self.write(0x94, [state])
 
 if __name__ == "__main__":
