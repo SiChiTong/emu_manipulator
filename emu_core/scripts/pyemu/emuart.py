@@ -20,7 +20,7 @@ class Emuart:
             self.ser = serial.Serial(port = port, baudrate = baudrate)
             a = ("{} is connected via {}".format(self.device, self.ser.portstr))
             cprint (' ','white','on_green',end = ' ')
-            self.ser.set_buffer_size(rx_size = 12800, tx_size = 12800)
+            # self.ser.set_buffer_size(rx_size = 12800, tx_size = 12800)
             cprint (a,'green')
             self.initialized = 1
         except:
@@ -89,23 +89,30 @@ class Emuart:
         print(data)
         self.ser.write(bytes(data))
 
-    def write_ols(self, jointNum, speed):
+    def writeOls(self, jointNum, speed):
         speed = floatToBin(speed)
         self.write(40+jointNum, singleTo4(speed))
 
-    def write_jointJog(self, jointNum, increment, duration):
+    def moveRelative(self, jointNum, increment, duration):
         increment = floatToBin(increment)
         duration = floatToBin(duration)
         print(increment, duration)
         self.write(50+jointNum, singleTo4(increment)+singleTo4(duration))
+        
+    def requestJointStates(self, jointNum, increment, duration):
+        self.write(0x0A, [])
+        c,d = self.readRaw()
+        
+        return c,d
+        
 
 if __name__ == "__main__":
-    et = Emuart('COM5')
+    et = Emuart('/dev/ttyTHS1')
     while et.initialized:
         # n = et.read()
         jN = input("J >>")
         cmd = input("I >>")
-        et.write_ols(int(jN), float(cmd))
-        # et.write_jointJog(int(jN), float(cmd), 1)
+        et.writeOls(int(jN), float(cmd))
+        # et.writeJointJog(int(jN), float(cmd), 1)
 
 
