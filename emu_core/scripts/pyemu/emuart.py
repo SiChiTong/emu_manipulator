@@ -147,12 +147,15 @@ if __name__ == "__main__":
     time.sleep(0.5)
     while et.isInitialized:
         # n = et.read()
+        
         # jN = input("J >>")
         # cmd = input("I >>")
         # et.writeOls(int(jN), float(cmd))
+        
+        
         print (et.requestJointStates())
         cmd = input("I >>")
-        et.moveRelative(1, float(cmd), 0.6)
+        et.moveRelative(1, float(cmd), 2)
         time.sleep(0.5)
 
 
