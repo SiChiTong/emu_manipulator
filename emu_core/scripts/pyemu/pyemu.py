@@ -1,6 +1,6 @@
 import numpy as np
 from math import sin, cos, pi, sqrt, atan, atan2
-from .util import kinematics
+from util import kinematics
 
 class EmuRobot:
     def __init__(self):
@@ -93,15 +93,16 @@ class EmuRobot:
         return lastq
 
     def getCartesianJog(self, q_now, increment, numDof = 6):
-        return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
+        # return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
+        return np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
     
     def getToolJog(self, q_now, increment, numDof = 6):
         # return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
         return 0
 if __name__ == '__main__':
-    a = emuRobot()
+    a = EmuRobot()
     tf = np.matrix('1 0 0 -0.5;0 1 0 0;0 0 1 0.5;0 0 0 1')
     print (a)
     print (a.getTransform([0,0,0,0,0,0], 6).round(decimals=4))
     print (a.computeIK(a.getTransform([0,0,0,0,0.00001,0], 6)).round(decimals=4))
-    print (np.linalg.matrix_rank(a.getJacobian([0,0,0,0,1,0], 6)))
+    print (a.getJacobian([0,0,0,0,1,0], 3).round(decimals=4))

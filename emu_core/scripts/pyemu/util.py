@@ -60,5 +60,7 @@ class kinematics:
                 Ji = np.concatenate((Ji, Jj),axis=1)
                 z_prev = tf[j][0:3, 2];
                 o_prev = tf[j][0:3, 3];
+            # Ji = np.concatenate((Ji, np.zeros((6,5-i))),axis=1)
             J.append(Ji)
+        # print(J[2].round(decimals = 5))
         return J

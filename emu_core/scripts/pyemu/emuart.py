@@ -4,8 +4,11 @@ from colorama import init
 from termcolor import cprint 
 import sys
 import binascii
+import numpy as np
 import struct
 init(strip=not sys.stdout.isatty())
+
+from pyemu import EmuRobot
 
 def floatToBin(data):
     return int.from_bytes(struct.pack('<f', data), byteorder=sys.byteorder)
@@ -13,9 +16,12 @@ def floatToBin(data):
 def singleTo4(data):
     return [(data>>24)&0xFF, (data>>16)&0xFF, (data>>8)&0xFF, data&0xFF]
 
+q_fake = [0, 0, 0]
+
 class Emuart:
     def __init__(self, port, baudrate = 1000000, device = "Emulator"):
         try:
+            self.emu = EmuRobot()
             self.device = device
             self.port = port
             self.baudrate = baudrate
@@ -49,7 +55,7 @@ class Emuart:
     def close(self):
         self.ser.close()
 
-    def isInitialized(self):
+    def established(self):
         return self.initialized
     
     def readRaw(self):
@@ -112,7 +118,6 @@ class Emuart:
         crc32 = binascii.crc32(bytes(data+[command]))
         crcSep = [(crc32>>24)&0xFF, (crc32>>16)&0xFF, (crc32>>8)&0xFF, crc32&0xFF]
         data = header+data+crcSep
-        print(data)
         self.ser.write(bytes(data))
 
     def writeOls(self, jointNum, speed):
@@ -120,42 +125,74 @@ class Emuart:
         self.write(40+jointNum, singleTo4(speed))
 
     def moveRelative(self, jointNum, increment, duration):
-        print(increment, duration)
-        increment = floatToBin(increment)
         duration = floatToBin(duration)
-        self.write(50+jointNum, singleTo4(increment)+singleTo4(duration))
-        
+        if jointNum == 'all' and type(increment) == list and len(increment) == 6:
+            increment_to_send = []
+            for i in increment:
+                increment_to_send += singleTo4(floatToBin(i))
+            self.write(71, increment_to_send+singleTo4(duration))
+        else:
+            increment = floatToBin(increment)
+            self.write(50+jointNum, singleTo4(increment)+singleTo4(duration))
+    
+    def moveAbsolute(self, jointNum, goal, duration):
+        goal = floatToBin(goal)
+        duration = floatToBin(duration)
+        self.write(60+jointNum, singleTo4(goal)+singleTo4(duration))
+
+            
     def requestJointStates(self, _type = 'simple'):
         if _type is 'simple':
             self.write(0x0C, [])
         elif _type is 'full':
             self.write(0x0D, [])
-        time.sleep(0.1)
+        time.sleep(0.05)
         d = self.read()
         return d
     
+    def setActuator(self, jointNum, state):
+        self.write(30+jointNum, [state])
+
     def setLD3(self, state):
         self.write(0x93, [state])
 
     def setLD4(self, state):
         self.write(0x94, [state])
+        
+    def cartesianJog(self, increment, duration):
+        global q_fake
+        q_now = -1
+        while q_now == -1:
+            q_now = self.requestJointStates()[0]
+            time.sleep(0.1)
+        q_now[3] = q_fake[0]
+        q_now[4] = q_fake[1]
+        q_now[5] = q_fake[2]
+        msg =  list(np.array(self.emu.getCartesianJog(np.array(q_now), np.array(increment), 6)).reshape(6))
+        q_fake[0] += msg[3] 
+        q_fake[1] += msg[4] 
+        q_fake[2] += msg[5] 
+        # print (q_fake)
+        # print (msg)
+        self.moveRelative('all', msg, duration)
+        
 
 if __name__ == "__main__":
     et = Emuart('COM5')
     # et = Emuart('dev/ttyTHS1')
     print (et)
     time.sleep(0.5)
-    while et.isInitialized:
-        # n = et.read()
-        
-        # jN = input("J >>")
-        # cmd = input("I >>")
-        # et.writeOls(int(jN), float(cmd))
-        
-        
-        print (et.requestJointStates())
-        cmd = input("I >>")
-        et.moveRelative(1, float(cmd), 2)
-        time.sleep(0.5)
+    # et.cartesianJog([0, 0, 0, 0, 0, -0.05], 3)
+    while et.established:
+        cmd = input(">> ")
+        cmd = 'ret = et.'+cmd
+        try:
+            exec(cmd)
+            if ret is None:
+                pass
+            else:
+                print ('Return: '+str(ret))
+        except:
+            print ('Wrong input!')
 
 
