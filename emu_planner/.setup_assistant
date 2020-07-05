@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: emu_description
+    relative_path: urdf/emu.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/emu.srdf
+  CONFIG:
+    author_name: C. Thanapong
+    author_email: c.thanapong@aol.com
+    generated_timestamp: 1593858799

@@ -11,35 +11,7 @@
     <xacro:emu_cam parent = "link_4" offset_from_parent = "0.0 0.109 0.444 " rotate_from_parent = "0 0 1.57075"/>
 
 <!--=================== LINKS ========================-->
-    <link name="world"/>
-
-    <link name="workspace">
-        <inertial>
-			<origin xyz = "0 0 0"/>
-			<mass value = "10"/>
-			<inertia ixx = "0.02107003" iyy = "0.04864817" izz = "0.05239187" ixy = "0.00000013" ixz = "0.0149951" iyz = "-0.00000032"/>
-		</inertial>
-        <collision> 
-			<origin xyz="0 0 0"/> 
-			<geometry> 
-				<mesh filename="package://emu_description/meshes/work_plane.STL" scale="1 1 1"/>
-			</geometry> 
-		</collision>
-        <visual>
-            <origin xyz = "0 0 0" rpy = "0 0 0"/>
-            <geometry>
-                <mesh filename="package://emu_description/meshes/work_plane.STL" scale="1 1 1"/>
-            </geometry>
-            <material name="Grey">
-                <color rgba="0.7 0.7 0.7 1"/>
-            </material>
-        </visual>
-    </link>
-    
-    <gazebo reference="workspace">
-        
-        <!-- <material>workspace</material> -->
-    </gazebo>
+    <!-- <link name="world"/> -->
 
     <link name="base_link">
 		<inertial>
@@ -186,7 +158,7 @@
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="$(find emu_description)/meshes/Link6.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/Link6.STL" scale="1 1 1"/>
             </geometry>
             <origin rpy="0 0 0" xyz = "0 0 0.121"/>
             <material name="Grey">
@@ -196,16 +168,11 @@
 
 <!--=================== JOINTS ========================-->
 
-    <joint name="world_to_base" type="fixed">
+    <!-- <joint name="world_to_base" type="fixed">
         <parent link="world"/>
         <child link="base_link"/>
         <origin xyz = "0 0 0.001"/>
-    </joint>
-
-    <joint name="world_to_workspace" type="fixed">
-        <parent link="world"/>
-        <child link="workspace"/>
-    </joint>
+    </joint> -->
 
     <joint name="joint_1" type="revolute">
         <parent link="base_link"/>
