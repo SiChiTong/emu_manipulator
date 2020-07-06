@@ -26,22 +26,13 @@ rospy.init_node('move_group_python_test', anonymous=True)
 robot = moveit_commander.RobotCommander()
 move_group = moveit_commander.MoveGroupCommander('arm')
 
-planning_frame = move_group.get_planning_frame()
-print "============ Planning frame: %s" % planning_frame
+print (move_group.get_planning_frame())
 
-# We can also print the name of the end-effector link for this group:
-eef_link = move_group.get_end_effector_link()
-print "============ End effector link: %s" % eef_link
+print (move_group.get_end_effector_link())
 
-# We can get a list of all the groups in the robot:
-group_names = robot.get_group_names()
-print "============ Available Planning Groups:", robot.get_group_names()
+print (robot.get_group_names())
 
-# Sometimes for debugging it is useful to print the entire state of the
-# robot:
-print "============ Printing robot state"
-print robot.get_current_state()
-print ""
+print (robot.get_current_state())
 
 bin_pose = geometry_msgs.msg.Pose()
 bin_pose.position.x = 0.5
@@ -60,7 +51,7 @@ joint_goal[5] = -1.27409
 
 path = move_group.plan(joint_goal)
 
-print len(path.joint_trajectory.points)
+print (len(path.joint_trajectory.points))
 # print path.joint_trajectory.points
 move_group.go(joint_goal, wait = True)
 
