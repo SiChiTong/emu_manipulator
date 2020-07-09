@@ -18,7 +18,7 @@ import time
 import moveit_commander
 import moveit_msgs.msg
 from moveit_commander.conversions import pose_to_list
-import moveit_python
+import moveit_mod
 
 #add share pyemu
 rospack = rospkg.RosPack()

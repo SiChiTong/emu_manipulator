@@ -182,7 +182,6 @@ if __name__ == "__main__":
     # et = Emuart('dev/ttyTHS1')
     print (et)
     time.sleep(0.5)
-    # et.cartesianJog([0, 0, 0, 0, 0, -0.05], 3)
     while et.established:
         cmd = input(">> ")
         cmd = 'ret = et.'+cmd

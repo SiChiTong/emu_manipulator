@@ -18,7 +18,7 @@ import time
 import moveit_commander
 import moveit_msgs.msg
 from moveit_commander.conversions import pose_to_list
-import moveit_python
+import moveit_mod
 
 #add share pyemu
 rospack = rospkg.RosPack()
@@ -59,7 +59,7 @@ def setBin(scene, order = ['blue', 'yellow', 'green'], height = [0, 0, 0]):
     scene.setColor('yellow_bin', 1, 1, 0.3, 1)
     scene.setColor('green_bin', 0.3, 1, 0.3, 1)
 
-sv = moveit_python.PlanningSceneInterface("base_link")
+sv = moveit_mod.PlanningSceneInterface("base_link")
 base_pose = geometry_msgs.msg.Pose()
 base_pose.orientation.w = 1
 sv.addMesh('work_plane', base_pose, package_path+'/meshes/work_plane.STL')

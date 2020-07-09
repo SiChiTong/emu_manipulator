@@ -1,0 +1,7 @@
+<launch>
+<arg name="debug" default="false" />
+  <include file="$(find emu_planner)/launch/moveit_rviz.launch">
+    <arg name="rviz_config" value="$(find emu_planner)/launch/moveit.rviz"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+</launch>
