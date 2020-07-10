@@ -2,6 +2,7 @@ import numpy as np
 from math import sin, cos, pi, sqrt, atan, atan2
 from .util import kinematics
 
+    
 class EmuRobot:
     def __init__(self):
         self.L1, self.L2, self.Le = 0.12596, 0.466, 0.121
