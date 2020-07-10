@@ -17,8 +17,9 @@ import time
 #moveit modules
 import moveit_commander
 import moveit_msgs.msg
+import moveit_msgs.srv
 from moveit_commander.conversions import pose_to_list
-import moveit_python
+import moveit_mod
 
 #add share pyemu
 rospack = rospkg.RosPack()
@@ -32,15 +33,15 @@ moveit_commander.roscpp_initialize(sys.argv)
 rospy.init_node('modules state space', anonymous=True)
 
 robot = moveit_commander.RobotCommander()
-move_group = moveit_commander.MoveGroupCommander('arm')
+ss = moveit_commander.MoveGroupCommander('arm')
 
-print (move_group.get_planning_frame())
+# print (move_group.get_planning_frame())
 
-print (move_group.get_end_effector_link())
+# print (move_group.get_end_effector_link())
 
-print (robot.get_group_names())
+# print (robot.get_group_names())
 
-print (robot.get_current_state())
+# print (robot.get_current_state())
 
 
 

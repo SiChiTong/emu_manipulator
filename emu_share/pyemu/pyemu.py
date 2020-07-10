@@ -1,7 +1,9 @@
 import numpy as np
 from math import sin, cos, pi, sqrt, atan, atan2
-from .util import kinematics
-
+try:
+    from .util import kinematics
+except:
+    from util import kinematics
     
 class EmuRobot:
     def __init__(self):
