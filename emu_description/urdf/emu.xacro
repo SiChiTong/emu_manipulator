@@ -30,8 +30,9 @@
                 <mesh filename="package://emu_description/meshes/Base_link.STL" scale="1 1 1"/>
             </geometry>
             <material name="Grey">
-        <color rgba="0.7 0.7 0.7 1"/>
-    </material></visual>
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
     </link>
 
     <link name="link_1">
@@ -52,8 +53,9 @@
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0.12596 0 0.30767"/>
             <material name="Grey">
-        <color rgba="0.7 0.7 0.7 1"/>
-    </material></visual>
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
     </link>
 
     <link name="link_2">
@@ -74,8 +76,9 @@
             </geometry>
             <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
             <material name="Grey">
-        <color rgba="0.7 0.7 0.7 1"/>
-    </material></visual>
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
     </link>
 
     <link name="link_3">
@@ -96,8 +99,9 @@
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0.05 0 0"/>
             <material name="Grey">
-        <color rgba="0.7 0.7 0.7 1"/>
-    </material></visual>
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
     </link>
 
     <link name="link_4">
@@ -118,8 +122,9 @@
             </geometry>
             <origin rpy="-1.57075 0 0" xyz = "0 0 0.466"/>
             <material name="Grey">
-        <color rgba="0.7 0.7 0.7 1"/>
-    </material></visual>
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
     </link>
 
     <link name="link_5">
@@ -140,8 +145,9 @@
             </geometry>
             <origin rpy="1.57075 0 0" xyz = "0 0 0"/>
             <material name="Grey">
-        <color rgba="0.7 0.7 0.7 1"/>
-    </material></visual>
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
     </link>
 
     <link name="link_6">
@@ -153,17 +159,39 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="package://emu_description/meshes/collision/Link6_c.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/Link6.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
                 <mesh filename="package://emu_description/meshes/Link6.STL" scale="1 1 1"/>
             </geometry>
-            <origin rpy="0 0 0" xyz = "0 0 0.121"/>
             <material name="Grey">
-        <color rgba="0.7 0.7 0.7 1"/>
-    </material></visual>
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
+    </link>
+
+    <link name="tool">
+		<inertial>
+			<origin xyz = "-0.00016738 0 0.04413320"/>
+			<mass value = "0.43864195"/>
+			<inertia ixx = "0.00049965" iyy = "0.00043225" izz = "0.00020871" ixy = "0" ixz = "-0.00000204" iyz = "0"/>
+		</inertial>
+        <collision> 
+			<origin xyz="0 0 0"/> 
+			<geometry> 
+				<mesh filename="package://emu_description/meshes/tool_joulin.STL" scale="1 1 1"/>
+			</geometry> 
+		</collision>
+        <visual>
+            <geometry>
+                <mesh filename="package://emu_description/meshes/tool_joulin.STL" scale="1 1 1"/>
+            </geometry>
+            <material name="Grey">
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
     </link>
 
 <!--=================== JOINTS ========================-->
@@ -223,8 +251,15 @@
         <child link="link_6"/>
         <axis xyz = "0 0 1"/>
         <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
-        <origin rpy="1.57075 0 0" xyz = "0 0 0"/>
+        <origin rpy="1.57075 0 0" xyz = "0 -0.043 0"/>
+        <!-- <origin rpy="1.57075 0 0" xyz = "0 0 0"/> -->
         <dynamics damping="0"/>
+    </joint>
+
+    <joint name="joint_6_to_tool" type="fixed">
+        <parent link="link_6"/>
+        <child link="tool"/>
+        <origin rpy="0 0 0" xyz = "0 0 0.0805"/>
     </joint>
 
     <transmission name="tran1">

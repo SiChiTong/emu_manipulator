@@ -70,6 +70,3 @@ sv.addMesh('work_plane', base_pose, package_path+'/meshes/work_plane.STL')
 sv.setColor('work_plane', 0.9, 0.9, 0.9, 1)
 setBin(sv, ['yellow', 'blue', 'green'],[0.1, 0, 0.2],[0.32, -0.01, -0.33])
 sv.sendColors()
-
-while 1:
-    print (sv.getKnownCollisionObjects())

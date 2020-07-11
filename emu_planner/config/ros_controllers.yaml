@@ -23,9 +23,3 @@ joint_state_controller:
   publish_rate: 50
 controller_list:
   []
-emu_position_controller:
-  type: position_controllers/JointPositionController
-  joints:
-    []
-  gains:
-    {}

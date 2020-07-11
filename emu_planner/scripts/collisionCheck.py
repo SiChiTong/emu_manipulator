@@ -41,7 +41,7 @@ class StateValidity():
         update robot state
         '''
         self.rs.joint_state.position = msg.position
-        self.rs.joint_state.position = [0.610, -0.9, -0.4363, 0.349, -0.471, 1.343]
+        # self.rs.joint_state.position = [0.610, -0.9, -0.4363, 0.349, -0.471, 1.343]
         self.joint_states_received = True
 
 
