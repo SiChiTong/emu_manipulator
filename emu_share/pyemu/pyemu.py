@@ -6,7 +6,7 @@ except:
     from util import kinematics
     
 class EmuRobot:
-    def __init__(self):
+    def __init__(self, tool_length = 0):
         self.L1, self.L2, self.Le = 0.12596, 0.466, 0.121
         self.a1, self.a2, self.a3 = 0.30767, 0.400, 0.05 
         self.dh_param = np.array([[0, self.a1, self.L1, pi/2], [pi/2, 0, self.a2, 0], [0, 0, self.a3, pi/2], [0, self.L2, 0, -pi/2], [0, 0, 0, pi/2], [0, self.Le, 0, 0]])
@@ -36,7 +36,7 @@ class EmuRobot:
         else:
             return kinematics.mj(config, self.dh_param, self.rho)
 
-    def computeIK(self, tf):
+    def computeIK(self, tf, method = None, q_now = [0, 0, 0, 0, 0, 0]):
         gr06 = tf[0:3, 0:3]
         gw = tf[0:3,3]+gr06.T*np.matrix([0, 0, -self.Le]).T
         x = gw[0]
@@ -93,7 +93,16 @@ class EmuRobot:
                 nanm = np.matrix([nan, nan, nan, nan, nan, nan])
                 p_q[:,i]=nanm
         lastq = p_q[:,~np.all(np.isnan(p_q), axis=0)]
-        return lastq
+        if lastq is not None:
+            lastq = lastq.reshape(len(lastq[0]),6)
+            if method == 'least_dist':
+                dist = abs(lastq-q_now)
+                cost = np.sum(dist, axis = 1)
+                return lastq[np.array(list(cost).index(min(cost)))]
+            else:
+                return lastq
+        else:
+            return None
 
     def getCartesianJog(self, q_now, increment, numDof = 6):
         # return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
@@ -106,6 +115,6 @@ if __name__ == '__main__':
     a = EmuRobot()
     tf = np.matrix('1 0 0 -0.5;0 1 0 0;0 0 1 0.5;0 0 0 1')
     print (a)
-    print (a.getTransform([0,0,0,0,0,0], 6).round(decimals=4))
-    print (a.computeIK(a.getTransform([0,0,0,0,0.00001,0], 6)).round(decimals=4))
-    print (a.getJacobian([0,0,0,0,1,0], 3).round(decimals=4))
+    # print (a.getTransform([0,0,0,0,0,0], 6).round(decimals=4))
+    print (a.computeIK(a.getTransform([pi/2,0,0,0,0.00001,0], 6), 'least_dist', [pi/2, 0, 0, 0.4, 0.01, 0]).round(decimals=4))
+    # print (a.getJacobian([0,0,0,0,1,0], 3).round(decimals=4))
