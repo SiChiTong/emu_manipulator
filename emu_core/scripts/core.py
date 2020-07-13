@@ -24,14 +24,43 @@ class Core:
 		self.emulator = pyemu.Emuart(self.port)
 		while not self.emulator.established():
 			pass
-		self.joint_states_publisher = rospy.Publisher('emu/joint_states', JointState, queue_size=20)
+
 		self.joint_rate = rospy.Rate(5)
 		self.joint_msg = JointState()
 		self.joint_msg.header.frame_id = "base_link"
 		self.joint_msg.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
 
+		self.emu_log = rospy.Publisher('emu/log', String, queue_size = 20)
+		self.joint_states_publisher = rospy.Publisher('emu/joint_states', JointState, queue_size = 20)
+
 		rospy.Subscriber('emu/jog/configuration', JointState, self.configJogCallback)
 		rospy.Subscriber('emu/jog/cartesian', Twist, self.cartesianJogCallback)
+		rospy.Subscriber('emu/command', Twist, self.__execute)
+
+	def log(self, text, msg_type = None):
+		msg = String
+		if msg_type == None:
+			rospy.logdebug(text)
+			head = 'd_'
+		elif msg_type == 'warn':
+			rospy.logwarn(text)
+			head = 'w_'
+		elif msg_type == 'error':
+			rospy.logerr(text)
+			head = 'e_'
+		msg.data = head+text
+		self.emu_log.publish(msg)
+
+	def __execute(self, cmd):
+		cmd = 'ret = et.'+cmd
+		try:
+			exec(cmd)
+			if ret is None:
+				pass
+			else:
+				print ('Return: '+str(ret))
+		except:
+			print ('Wrong input!')
 
 	def publishJointStates(self):
 		joint_states = self.emulator.requestJointStates('simple')
