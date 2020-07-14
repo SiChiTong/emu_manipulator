@@ -11,13 +11,12 @@ sys.path.append(share_pkg)
 
 from pyemu import Emuart
 
-port ='dev/ttyTHS1'
+port ='/dev/ttyTHS1'
 
 et = Emuart(port)
 
 rospy.init_node('emulator_console')
 
-# et = Emuart('dev/ttyTHS1')
 print (et)
 time.sleep(0.5)
 
