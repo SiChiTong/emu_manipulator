@@ -11,12 +11,12 @@ v = Vision()
 cv2.namedWindow('test')
 cv2.waitKey(0)
 
-v.snapPano('r')
+v.snapPano('l')
 cv2.waitKey(0)
 
-v.snapPano('r')
+v.snapPano('l')
 cv2.waitKey(0)
 
-v.snapPano('r')
+v.snapPano('l')
 cv2.waitKey(0)
-print(v.getTrash('r',panomode=0,persmode=0))
+print(v.getTrash('l',panomode=1,persmode=1))

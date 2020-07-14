@@ -12,8 +12,8 @@ def getTypeTrashEle(trash):
     return trash.getType()
 class Vision():
     def __init__(self):
-        self.WIDTH = 1920
-        self.HEIGHT = 1080
+        self.WIDTH = 1024
+        self.HEIGHT = 1024
         self.CALIBRATE = True
         self.CAMINDEX = 0
         self.TESTTHRESHOLD = 0.85
@@ -34,7 +34,7 @@ class Vision():
         self.video = self.Cam.open(0)
         while(1):
             _,frame = self.video.read()
-            # frame = self.Cam.applyCalibate(frame)
+            frame = self.Cam.applyCalibate(frame)
             
             cv2.imshow('frame',frame)
             if cv2.waitKey(1) & 0xFF==ord('d'):
