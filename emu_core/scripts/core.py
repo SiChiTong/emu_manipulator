@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import numpy as np
+from math import sin, cos, tan, pi
+
 #add share pyemu
 import sys, time
 import copy
@@ -22,6 +25,7 @@ class Core:
 	def __init__(self, _port = '/dev/ttyTHS1'):
 		self.port = _port
 		self.emulator = pyemu.Emuart(self.port)
+		self.kin_solver = pyemu.EmuRobot()
 		while not self.emulator.established():
 			pass
 
@@ -76,8 +80,16 @@ class Core:
 		t_ang = s_twist.angular
 		t_lin = s_twist.linear
 		twist = [t_ang.x, t_ang.y, t_ang.z, t_lin.x, t_lin.y, t_lin.z]
-		print (twist)
+		qk = self.joint_msg.position
+		dq = []
+		if not qk == []:
+			dq =  list(np.array(self.kin_solver.getCartesianJog(np.array(qk), np.array(twist), 6)).reshape(6))
+		else:
+			print ('Joint states is not published yet!')
+			self.log('Joint states is not published yet!', 'error')
+		print (dq)
 		self.log('Input twist: '+str(twist))
+		self.log('Output joint increment: '+str(dq))
 
 	def configJogCallback(self, state):
 		position_array = [state.position[0], state.position[1], state.position[2], state.position[3], state.position[4], state.position[5]]
