@@ -12,6 +12,14 @@ from skimage.morphology import flood_fill
 from skimage.graph import route_through_array
 from skimage.color import gray2rgb
 from math import sin,cos,pi
+import rospkg
+import sys
+rospack = rospkg.RosPack()
+share_pkg = rospack.get_path('emu_share')
+sys.path.append(share_pkg)
+package_path = rospack.get_path('emu_core')
+this_file = '/'.join(__file__.split("/")[0:-1])+'/'
+config_path = this_file+"config/"
 #helper
 def createTrackbar(name,img):
     def nothing(x):
@@ -40,7 +48,7 @@ def readTrackbar(name):
     y4 = cv2.getTrackbarPos('y4',name)
 
     return x1,y1,x2,y2,x3,y3,x4,y4
-def selectPoint(newimg):
+def selectPoint(newimg,name):
     createTrackbar('test',newimg)
     
     while(1):
@@ -59,8 +67,12 @@ def selectPoint(newimg):
         if key == ord('q'):
             break
         elif key == ord('s'):
-            return(x1,y1,x2,y2,x3,y3,x4,y4)
-def makePano(pano_imgs,n_keypoints=800,fast_threshold=0.05):
+            x= np.array([x1,y1,x2,y2,x3,y3,x4,y4])
+            np.savetxt(config_path+'{}.txt'.format(name), x, delimiter=',') 
+            # return(x1,y1,x2,y2,x3,y3,x4,y4)
+            return True
+            
+def makePano(pano_imgs,traySide,n_keypoints=800,fast_threshold=0.05,mode=0):
     def generate_costs(diff_image, mask, vertical=True, gradient_cutoff=2.):
         """
         Ensures equal-cost paths from edges to region of interest.
@@ -151,22 +163,45 @@ def makePano(pano_imgs,n_keypoints=800,fast_threshold=0.05):
         
         return np.dstack((img, mask))
     pano0, pano1, pano2 = [rgb2gray(im) for im in pano_imgs]
-    orb = ORB(n_keypoints=800, fast_threshold=0.05)
+    
+    if mode==1:
+        orb = ORB(n_keypoints=800, fast_threshold=0.05)
 
-    # Detect keypoints in pano0
-    orb.detect_and_extract(pano0)
-    keypoints0 = orb.keypoints
-    descriptors0 = orb.descriptors
+        # Detect keypoints in pano0
+        orb.detect_and_extract(pano0)
+        keypoints0 = orb.keypoints
+        descriptors0 = orb.descriptors
 
-    # Detect keypoints in pano1
-    orb.detect_and_extract(pano1)
-    keypoints1 = orb.keypoints
-    descriptors1 = orb.descriptors
+        # Detect keypoints in pano1
+        orb.detect_and_extract(pano1)
+        keypoints1 = orb.keypoints
+        descriptors1 = orb.descriptors
 
-    # Detect keypoints in pano2
-    orb.detect_and_extract(pano2)
-    keypoints2 = orb.keypoints
-    descriptors2 = orb.descriptors
+        # Detect keypoints in pano2
+        orb.detect_and_extract(pano2)
+        keypoints2 = orb.keypoints
+        descriptors2 = orb.descriptors
+        np.savetxt(config_path+'k0'+traySide+'.txt',keypoints0,delimiter=',')
+        np.savetxt(config_path+'d0'+traySide+'.txt',descriptors0,delimiter=',')
+        
+        np.savetxt(config_path+'k1'+traySide+'.txt',keypoints1,delimiter=',')
+        np.savetxt(config_path+'d1'+traySide+'.txt',descriptors1,delimiter=',')
+        
+        np.savetxt(config_path+'k2'+traySide+'.txt',keypoints2,delimiter=',')
+        np.savetxt(config_path+'d2'+traySide+'.txt',descriptors2,delimiter=',')
+        
+        print("save Keypoint and Descriptors")
+    elif mode == 0:
+        keypoints0 = np.loadtxt(config_path+'k0'+traySide+'.txt',delimiter=',')
+        descriptors0 = np.loadtxt(config_path+'d0'+traySide+'.txt',delimiter=',')
+        
+        keypoints1= np.loadtxt(config_path+'k1'+traySide+'.txt',delimiter=',')
+        descriptors1 = np.loadtxt(config_path+'d1'+traySide+'.txt',delimiter=',')
+        
+        keypoints2 = np.loadtxt(config_path+'k2'+traySide+'.txt',delimiter=',')
+        descriptors2 = np.loadtxt(config_path+'d2'+traySide+'.txt',delimiter=',')
+        
+        print("load Keypoint and Descriptors")
     # Match descriptors between left/right images and the center
     matches01 = match_descriptors(descriptors0, descriptors1, cross_check=True)
     matches12 = match_descriptors(descriptors1, descriptors2, cross_check=True)
@@ -306,25 +341,40 @@ def makePano(pano_imgs,n_keypoints=800,fast_threshold=0.05):
     pano_combined += pano2_color * gray2rgb(mask2)
 
     return pano_combined
-def applyPerspective(img,pts,w,h,mode=0):
+def applyPerspective(img,pts,w,h,traySide,mode=0,):
     temp_rect = np.zeros((4,2), dtype = "float32")
     if mode == 0:
         
-        s = np.sum(pts, axis = -1)
+        # s = np.sum(pts, axis = -1)
         
-        tl = pts[np.argmin(s)]
-        br = pts[np.argmax(s)]
-        diff = np.diff(pts, axis = -1)
-        tr = pts[np.argmin(diff)]
-        bl = pts[np.argmax(diff)]
+        # tl = pts[np.argmin(s)]
+        # br = pts[np.argmax(s)]
+        # diff = np.diff(pts, axis = -1)
+        # tr = pts[np.argmin(diff)]
+        # bl = pts[np.argmax(diff)]
 
-        # print(tl[0],tl[1])
-        temp_rect[0] = tl
-        temp_rect[1] = tr
-        temp_rect[2] = bl
-        temp_rect[3] = br
-    else:
-        x1,y1,x2,y2,x3,y3,x4,y4 = selectPoint(img)
+        # # print(tl[0],tl[1])
+        # temp_rect[0] = tl
+        # temp_rect[1] = tr
+        # temp_rect[2] = bl
+        # temp_rect[3] = br
+        if traySide == 'l':
+            trayname = 'LeftTray'
+        elif traySide == 'r':
+            trayname = 'RightTray'
+        x1,y1,x2,y2,x3,y3,x4,y4 = np.loadtxt(config_path+trayname+'.txt')
+        temp_rect[0] = np.array([x1,y1])
+        temp_rect[1] = np.array([x2,y2])
+        temp_rect[2] = np.array([x3,y3])
+        temp_rect[3] = np.array([x4,y4])
+    elif mode == 1:
+        if traySide == 'l':
+            trayname = 'LeftTray'
+        elif traySide == 'r':
+            trayname = 'RightTray'
+        check = selectPoint(img,name=trayname)
+        if check :
+            x1,y1,x2,y2,x3,y3,x4,y4 = np.loadtxt(config_path+trayname+'.txt')
         temp_rect[0] = np.array([x1,y1])
         temp_rect[1] = np.array([x2,y2])
         temp_rect[2] = np.array([x3,y3])
@@ -335,10 +385,10 @@ def applyPerspective(img,pts,w,h,mode=0):
     # print(temp_rect,ind,newLid)
     return warp
 # find trash in tray1 coordinate
-def perspecTray(Tray):
+def perspecTray(Tray,panomode,persmode,traySide):
     
   
-    frame = makePano(Tray.pano)
+    frame = makePano(Tray.pano,traySide,mode=panomode)
     frame = cv2.normalize(frame, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_8UC1)
     # return frame
     # find tray edges
@@ -356,7 +406,7 @@ def perspecTray(Tray):
         # maybe select edges only top left and top right
         # return edges
     # make perspective from tray edges
-    frame = applyPerspective(frame,contours,1000,400,mode=0 )
+    frame = applyPerspective(frame,contours,1000,400,mode=persmode,traySide = traySide )
     return frame
 def make0TrayHomo(traySide):
     if traySide == 'l':

@@ -38,7 +38,7 @@ def detectBin(img,binScaleWorld,binScalePixel):
         mask = cv2.inRange(image,lower, upper)
         result = cv2.bitwise_and(image,image,mask = mask)
     
-    return mask
+        return mask
     def labSegment(image,lab):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
         lower = np.array([lab[0],lab[1],lab[2]])
@@ -162,9 +162,7 @@ def getBinList(Cam,BinScaleWorld,BinScalePixel):
     # find bin pose and color
     binList = detectBin(frame,BinScaleWorld,BinScalePixel)
     # set width scale and height scale of world coordinate
-    BinScaleWorld = 0.10
-    BinScalePixel = 42
-    binFrameHeight = img.shape[0] * BinScaleWorld / BinScalePixel
+    binFrameHeight = img.shape[0] * BinScaleWorld[1] / BinScalePixel[1]
     # with transfrom to base
     for i in range(len(binList)):
         x = binList[i].getHolePtsWorld(0)

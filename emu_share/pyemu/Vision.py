@@ -12,13 +12,13 @@ def getTypeTrashEle(trash):
     return trash.getType()
 class Vision():
     def __init__(self):
-        self.WIDTH = 1024
-        self.HEIGHT = 1024
+        self.WIDTH = 1920
+        self.HEIGHT = 1080
         self.CALIBRATE = True
         self.CAMINDEX = 0
         self.TESTTHRESHOLD = 0.85
-        self.BinScaleWorld = 0.10
-        self.BinScalePixel = 42
+        self.BinScaleWorld = [0.10,0.1]
+        self.BinScalePixel = [42,42]
         self.CLASSNUM = 3
         self.TrayLeft = Tray()
         self.TrayRight = Tray()
@@ -32,20 +32,25 @@ class Vision():
         self.video.release()
             # find tray 
         self.video = self.Cam.open(0)
-        _,frame = self.video.read()
-        frame = self.Cam.applyCalibate(frame)
-        if traySide == 'l':
-            self.TrayLeft.addPano(frame)
-        elif traySide == 'r':    
-            self.TrayRight.addPano(frame)
+        while(1):
+            _,frame = self.video.read()
+            # frame = self.Cam.applyCalibate(frame)
+            
+            cv2.imshow('frame',frame)
+            if cv2.waitKey(1) & 0xFF==ord('d'):
+                if traySide == 'l':
+                    self.TrayLeft.addPano(frame)
+                elif traySide == 'r':    
+                    self.TrayRight.addPano(frame)
+                break
     
-    def getTrash(self,traySide):
+    def getTrash(self,traySide,panomode=0,persmode=1):
         if traySide == 'l':
             Tray1 = self.TrayLeft
         elif traySide == 'r':    
             Tray1 = self.TrayRight
         if len(Tray1.pano) == 3:
-            frame = perspecTray(Tray1)
+            frame = perspecTray(Tray1,panomode,persmode,traySide)
             Tray1.clearPano()
             
             # blackTuning(frame)
