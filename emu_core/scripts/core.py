@@ -16,7 +16,7 @@ sys.path.append(share_pkg)
 
 import pyemu
 
-rospy.init_node('Core')
+rospy.init_node('core')
 
 class Core:
 	def __init__(self, _port = '/dev/ttyTHS1'):
@@ -38,7 +38,7 @@ class Core:
 		rospy.Subscriber('emu/command', Twist, self.__execute)
 
 	def log(self, text, msg_type = None):
-		msg = String
+		msg = String()
 		if msg_type == None:
 			rospy.logdebug(text)
 			head = 'd_'
@@ -52,7 +52,7 @@ class Core:
 		self.emu_log.publish(msg)
 
 	def __execute(self, cmd):
-		cmd = 'ret = et.'+cmd
+		cmd = 'ret = self.'+cmd
 		try:
 			exec(cmd)
 			if ret is None:
@@ -77,13 +77,16 @@ class Core:
 		t_lin = s_twist.linear
 		twist = [t_ang.x, t_ang.y, t_ang.z, t_lin.x, t_lin.y, t_lin.z]
 		print (twist)
+		self.log('Input twist: '+str(twist))
 
 	def configJogCallback(self, state):
 		position_array = [state.position[0], state.position[1], state.position[2], state.position[3], state.position[4], state.position[5]]
 		print (position_array)
+		self.log('Input joint increments: '+str(position_array))
 		
 
 if __name__ == "__main__":
 	emu = Core()
+	emu.log('emu core initialized successfully', None)
 	while not rospy.is_shutdown():
 		emu.publishJointStates()
