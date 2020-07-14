@@ -234,17 +234,14 @@ class PlanningSceneInterface(object):
     ## @param y The y position in fixed frame
     ## @param z The z position in fixed frame
     ## @param use_service If true, update will be sent via apply service
-    def addCylinder(self, name, height, radius, x, y, z, use_service=True):
+    def addCylinder(self, name, height, radius, pose_in, use_service=True):
         s = SolidPrimitive()
         s.dimensions = [height, radius]
         s.type = s.CYLINDER
 
         ps = PoseStamped()
         ps.header.frame_id = self._fixed_frame
-        ps.pose.position.x = x
-        ps.pose.position.y = y
-        ps.pose.position.z = z
-        ps.pose.orientation.w = 1.0
+        ps.pose = pose_in
 
         self.addSolidPrimitive(name, s, ps.pose, use_service)
 
