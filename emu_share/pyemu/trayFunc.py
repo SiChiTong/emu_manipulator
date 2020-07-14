@@ -385,7 +385,7 @@ def applyPerspective(img,pts,w,h,traySide,mode=0,):
     # print(temp_rect,ind,newLid)
     return warp
 # find trash in tray1 coordinate
-def perspecTray(Tray,panomode,persmode,traySide):
+def perspecTray(Tray,panomode,persmode,traySide,debug=False):
     
   
     frame = makePano(Tray.pano,traySide,mode=panomode)
@@ -397,9 +397,10 @@ def perspecTray(Tray,panomode,persmode,traySide):
     ret,mask = cv2.threshold(gray, 188, 255, cv2.THRESH_BINARY)
     
         # morph thresh mask
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,np.ones((9,9),np.uint8))
-    cv2.imshow('mask',mask)
-    cv2.waitKey(0)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,np.ones((1,1),np.uint8))
+    if debug:
+        cv2.imshow('mask',mask)
+        cv2.waitKey(0)
         # find tray contour
     _,contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = np.concatenate(contours)

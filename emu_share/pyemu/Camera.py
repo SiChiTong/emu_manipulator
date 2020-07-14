@@ -34,7 +34,7 @@ class Camera():
         self.cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
         print("Open Camera with chanel : ",camIndex,
               "\nResolution ",self.shape[0]," x ",self.shape[1],
-              "\nFPS 60\nExposure ",self.cap.get(cv2.CAP_PROP_EXPOSURE))
+              "\nExposure ",self.cap.get(cv2.CAP_PROP_EXPOSURE))
         
         return self.cap
     
