@@ -166,22 +166,13 @@ class Emuart:
     def setLD4(self, state):
         self.write(0x94, [state])
         
-    def cartesianJog(self, increment, duration):
-        global q_fake
-        q_now = -1
-        while q_now == -1:
-            q_now = self.requestJointStates()[0]
-            time.sleep(0.1)
-        q_now[3] = q_fake[0]
-        q_now[4] = q_fake[1]
-        q_now[5] = q_fake[2]
-        msg =  list(np.array(self.emu.getCartesianJog(np.array(q_now), np.array(increment), 6)).reshape(6))
-        q_fake[0] += msg[3] 
-        q_fake[1] += msg[4] 
-        q_fake[2] += msg[5] 
-        # print (q_fake)
-        # print (msg)
-        self.moveRelative('all', msg, duration)
+    def sendViaPoints(self, qr, vr, t):
+        viapoints = qr[0]+qr[1]+qr[2]+qr[3]+qr[4]+qr[5]+vr[0]+vr[1]+vr[2]+vr[3]+vr[4]+vr[5]+t
+        data = []
+        for i in viapoints:
+            data = data + singleTo4(floatToBin(i))
+        # print (data)
+        self.write(82, data)
         
 
 if __name__ == "__main__":
