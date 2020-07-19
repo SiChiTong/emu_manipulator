@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #add share pyemu
 import sys, time
 import copy
 import rospkg
 import rospy
+from math import pi
 rospack = rospkg.RosPack()
 share_pkg = rospack.get_path('emu_share')
 sys.path.append(share_pkg)

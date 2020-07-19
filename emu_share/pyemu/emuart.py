@@ -6,6 +6,7 @@ import sys
 import binascii
 import numpy as np
 import struct
+from math import pi
 init(strip=not sys.stdout.isatty())
 
 from pyemu import EmuRobot
@@ -25,7 +26,7 @@ class Emuart:
             self.device = device
             self.port = port
             self.baudrate = baudrate
-            self.ser = serial.Serial(port = port, baudrate = baudrate, timeout = 1)
+            self.ser = serial.Serial(port = port, baudrate = baudrate, timeout = 0.5)
             a = ("{} is connected via {}".format(self.device, self.ser.portstr))
             cprint (' ','white','on_green',end = ' ')
             # self.ser.set_buffer_size(rx_size = 12800, tx_size = 12800)
@@ -136,9 +137,15 @@ class Emuart:
             self.write(50+jointNum, singleTo4(increment)+singleTo4(duration))
     
     def moveAbsolute(self, jointNum, goal, duration):
-        goal = floatToBin(goal)
         duration = floatToBin(duration)
-        self.write(60+jointNum, singleTo4(goal)+singleTo4(duration))
+        if jointNum == 'all' and type(goal) == list and len(goal) == 6:
+            goal_to_send = []
+            for i in goal:
+                goal_to_send += singleTo4(floatToBin(i))
+            self.write(81, goal_to_send+singleTo4(duration))
+        else:
+            goal = floatToBin(goal)
+            self.write(60+jointNum, singleTo4(goal)+singleTo4(duration))
 
             
     def requestJointStates(self, _type = 'simple'):
