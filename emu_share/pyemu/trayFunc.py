@@ -341,7 +341,11 @@ def makePano(pano_imgs,traySide,n_keypoints=800,fast_threshold=0.05,mode=0):
     pano_combined += pano2_color * gray2rgb(mask2)
 
     return pano_combined
+<<<<<<< HEAD
+def applyPerspective(img,w,h,traySide,mode=0,):
+=======
 def applyPerspective(img,pts,w,h,traySide,mode=0,):
+>>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     temp_rect = np.zeros((4,2), dtype = "float32")
     if mode == 0:
         
@@ -390,6 +394,34 @@ def perspecTray(Tray,panomode,persmode,traySide,debug=False):
   
     frame = makePano(Tray.pano,traySide,mode=panomode)
     frame = cv2.normalize(frame, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_8UC1)
+<<<<<<< HEAD
+    # # return frame
+    # # find tray edges
+    #     # find with tray mask with binary thresh
+    # gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    # ret,mask = cv2.threshold(gray, 188, 255, cv2.THRESH_BINARY)
+    
+    #     # morph thresh mask
+    # mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,np.ones((1,1),np.uint8))
+    # if debug:
+    #     cv2.imshow('mask',mask)
+    #     cv2.waitKey(0)
+    #     # find tray contour
+    # _,contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # contours = np.concatenate(contours)
+        # maybe select edges only top left and top right
+        # return edges
+    # make perspective from tray edges
+    # frame  = cv2.imread(package_path+"/tray.jpg")
+    cv2.imshow("f",frame)
+    cv2.waitKey()
+    frame = applyPerspective(frame,1128,440,mode=persmode,traySide = traySide )
+    return frame
+def make0TrayHomo(traySide):
+    if traySide == 'l':
+        h = np.matrix([[1,0,0,-0.74],
+                    [0,cos(pi), -sin(pi), 0.45+0.55],
+=======
     # return frame
     # find tray edges
         # find with tray mask with binary thresh
@@ -413,6 +445,7 @@ def make0TrayHomo(traySide):
     if traySide == 'l':
         h = np.matrix([[1,0,0,-0.5],
                     [0,cos(pi), -sin(pi), 0.5+0.4],
+>>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
                     [0,sin(pi), cos(pi),0],
                     [0,0,0,1]])
     elif traySide == 'r':

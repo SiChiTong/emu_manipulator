@@ -15,7 +15,11 @@ class Bin():
     def setHolePtsWorld(self,scaleWorld,scalePix):
         x = self.getHolePtsPixel(0)
         y = self.getHolePtsPixel(1)
+<<<<<<< HEAD
+        self.holePtsWorld = (self.pixToWorld(x,scaleWorld[0],scalePix[0]),self.pixToWorld(y,scaleWorld[1],scalePix[1]))
+=======
         self.holePtsWorld = (self.pixToWorld(x,scaleWorld[0],scalePix[0]),self.pixToWorld(y,scaleWorld[0],scalePix[1]))
+>>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     def setHoleRealPtsWorld(self,pts):
         self.holeRealPtsWorld = pts
     def setPosition(self,position):
@@ -55,6 +59,10 @@ class Bin():
         PixCoor : {}
         Color : {}
         Position: {}
+<<<<<<< HEAD
+        WolrdCoor: {}""".format(self.getHolePtsPixel(), self.getColor(), self.getPosition(), self.getHoleRealPtsWorld())
+=======
         WolrdCoor: {}""".format(self.getHolePtsPixel(), self.getColor(), self.getPosition(), self.getHolePtsWorld())
+>>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
         
         return des
