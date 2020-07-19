@@ -78,15 +78,9 @@ def initModel(testThresh=0.9,classNum = 3):
         DatasetCatalog.register("scrapble",lambda d=1: get_scrapble_dicts('./','./'))
         MetadataCatalog.get("scrapble").set(thing_classes=["bottle","can","snack"])
         cfg = get_cfg()
-<<<<<<< HEAD
         cfg.merge_from_file(config_path+'/model/x101v14.yaml')
         cfg.DATASETS.TEST = ('scrapble',)
         cfg.MODEL.WEIGHTS = os.path.join(config_path+'/model', "x101v14.pth")
-=======
-        cfg.merge_from_file(config_path+'/model/x101fpn5.yaml')
-        cfg.DATASETS.TEST = ('scrapble',)
-        cfg.MODEL.WEIGHTS = os.path.join(config_path+'/model', "x101fpn5.pth")
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = testThresh
         cfg.MODEL.DEVICE='cuda:0'
         # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.85
@@ -120,20 +114,12 @@ def visualModel(frame,outputs,classNum):
         v = Visualizer(frame[:,:,::-1], MetadataCatalog.get("scrapble"), scale=0.8)
         v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     # cv2.imwrite("./output.jpg",v.get_image()[:, :, ::-1])
-<<<<<<< HEAD
         o_image = cv2.resize(v.get_image()[:, :, ::-1],(1128,440))
-=======
-        o_image = cv2.resize(v.get_image()[:, :, ::-1],(1000,400))
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
         return o_image
     elif classNum == 6:
         # # MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["bottle","can","snack"])
         v = Visualizer(frame[:,:,::-1], MetadataCatalog.get("6class"), scale=0.8)
         v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     # cv2.imwrite("./output.jpg",v.get_image()[:, :, ::-1])
-<<<<<<< HEAD
         o_image = cv2.resize(v.get_image()[:, :, ::-1],(1128,440))
-=======
-        o_image = cv2.resize(v.get_image()[:, :, ::-1],(1000,400))
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
         return o_image

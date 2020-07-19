@@ -1,11 +1,7 @@
 import cv2
 import numpy as np
-<<<<<<< HEAD
 from math import sin,cos,atan2,pi,sqrt
 
-=======
-from math import sin,cos,atan2,pi
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
 def calAngTrash(output,ind):
 
     rcv = np.matrix([[0, -1, 0],
@@ -92,7 +88,6 @@ def makeTrayTrashHomo(yaw,x,y,z):
                    [sin(yaw), cos(yaw),0,y],
                    [0,0,1,z],
                    [0,0,0,1]])
-<<<<<<< HEAD
     return h
 def pickSequence(trashLists):
     def getRatio(ele):
@@ -239,6 +234,3 @@ def pickSequence2(trashLists):
             cv2.waitKey(0)
         pickLists = []
         
-=======
-    return h
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075

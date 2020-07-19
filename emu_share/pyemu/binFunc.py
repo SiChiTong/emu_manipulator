@@ -3,7 +3,6 @@ import cv2
 from .Frame import Frame
 import numpy as np
 from .kin import kinematics
-<<<<<<< HEAD
 from math import pi
 
 import rospkg
@@ -102,9 +101,6 @@ def applyPerspective(img,w,h,name,mode=0,):
     # print(temp_rect,ind,newLid)
     return warp
 def detectBin(img,binScaleWorld,binScalePixel,mode=0):
-=======
-def detectBin(img,binScaleWorld,binScalePixel):
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     # helper function
     def detect(c):
         # initialize the shape name and approximate the contour
@@ -167,20 +163,13 @@ def detectBin(img,binScaleWorld,binScalePixel):
     shapeList = [yShape,gShape,bShape]
     colorList = ['yellow','green','blue']
     binList = []
-<<<<<<< HEAD
     # perspective 
     img = applyPerspective(img,1024,576,'binPer',mode=mode)
-=======
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     # loop for three bin start with yellow green blue
     for ind in range(3):
         # color segment with hsv
         mask = colorSegment(img,hsvList[ind])
-<<<<<<< HEAD
         mask = cv2.morphologyEx(mask,cv2.MORPH_OPEN, np.ones((7,7),np.uint8))
-=======
-        mask = cv2.morphologyEx(mask,cv2.MORPH_OPEN, np.ones((5,5),np.uint8))
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
         
         # get bin contours
         _,contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -188,11 +177,7 @@ def detectBin(img,binScaleWorld,binScalePixel):
         # get bin bounding box
         contours = np.concatenate(contours) 
         bx,by,bw,bh = cv2.boundingRect(contours)
-<<<<<<< HEAD
         # cv2.rectangle(img, (bx,by), (bx+bw,by+bh),(0,255,255),1)
-=======
-        cv2.rectangle(img, (bx,by), (bx+bw,by+bh),(0,255,255),1)
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
         
         # crop bin image
         binImg = img[by:by+bh,bx:bx+bw].copy()
@@ -213,20 +198,12 @@ def detectBin(img,binScaleWorld,binScalePixel):
         # shape check
         if holeShape != shapeList[ind]:
             print("Error when finding hole shape!!")
-<<<<<<< HEAD
             cv2.imshow('detectBinmask',mask)
             cv2.waitKey()
         else:
             # get hole bounding box
             x,y,w,h = cv2.boundingRect(c)
             cv2.rectangle(img, (bx+x,by+y), (bx+x+w,by+y+h),(0,0,255),3)
-=======
-            show('detectBinmask',mask)
-        else:
-            # get hole bounding box
-            x,y,w,h = cv2.boundingRect(c)
-            cv2.rectangle(img, (bx+x,by+y), (bx+x+w,by+y+h),(0,255,255),1)
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
             
             # get hole center point
             centerX = x+w//2
@@ -250,7 +227,6 @@ def detectBin(img,binScaleWorld,binScalePixel):
     
     for b in range(3):
         sortedBin[b].setPosition(b)
-<<<<<<< HEAD
         # print(sortedBin[b],'\n')
     cv2.imshow('detectBin',img)
     cv2.waitKey(0)
@@ -259,25 +235,12 @@ def transFrameBinToBase(x,y,z,scaleY):
     bx = 0.5
     by = 0.49
     bz = 0.36
-=======
-        print(sortedBin[b],'\n')
-    show('detectBin',img)
-    return sortedBin
-def transFrameBinToBase(x,y,z,scaleY):
-    bx = 0.5
-    by = 0.5
-    bz = 0.3
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     h0_cvp = Frame('0','cvp',np.matrix( [[1, 0, 0, bx],[0, 1, 0, by],[0, 0, 1, bz],[0, 0, 0, 1]] ))
 
     bx = 0
     by = scaleY
     bz = 0
-<<<<<<< HEAD
     
-=======
-
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     hcv_cvp = kinematics.transl(by,'y') * kinematics.rot(pi/2,'x') * kinematics.rot(pi/2,'z')
     hcv_cvp = Frame('cv','cvp',hcv_cvp)
 
@@ -289,7 +252,6 @@ def transFrameBinToBase(x,y,z,scaleY):
     hbin_realbin = Frame('bin','realbin',hbin_realbin)
 
     h0_realbin = h0_cvp.H * hcv_cvp.inverse() * hcv_bin.H * hbin_realbin.H
-<<<<<<< HEAD
     
     return h0_realbin
 def getBinList(Cam,BinScaleWorld,BinScalePixel,frame,mode=0):
@@ -306,20 +268,6 @@ def getBinList(Cam,BinScaleWorld,BinScalePixel,frame,mode=0):
     binFrameHeight = frame.shape[0] * BinScaleWorld[1] / BinScalePixel[1]
     print(binFrameHeight)
     
-=======
-
-    return h0_realbin
-def getBinList(Cam,BinScaleWorld,BinScalePixel):
-    video = Cam.open(Cam.camIndex)
-    # read video
-    _,frame = video.read()
-    # calibrate cam
-    frame = Cam.applyCalibate(frame)
-    # find bin pose and color
-    binList = detectBin(frame,BinScaleWorld,BinScalePixel)
-    # set width scale and height scale of world coordinate
-    binFrameHeight = img.shape[0] * BinScaleWorld[1] / BinScalePixel[1]
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     # with transfrom to base
     for i in range(len(binList)):
         x = binList[i].getHolePtsWorld(0)
@@ -328,8 +276,5 @@ def getBinList(Cam,BinScaleWorld,BinScalePixel):
         f = transFrameBinToBase(x,y,z,binFrameHeight)
         pts = (f[0,3],f[1,3],f[2,3])
         binList[i].setHoleRealPtsWorld(pts)
-<<<<<<< HEAD
         print(binList[i])
-=======
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
     return binList

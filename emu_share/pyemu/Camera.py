@@ -30,11 +30,7 @@ class Camera():
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.shape[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.shape[1])
         self.cap.set(cv2.CAP_PROP_FPS,60)
-<<<<<<< HEAD
         # self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 2.25)
-=======
-        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
->>>>>>> 056183dc48941ea113f96fc1b9a8e452a320c075
         self.cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
         print("Open Camera with chanel : ",camIndex,
               "\nResolution ",self.shape[0]," x ",self.shape[1],
