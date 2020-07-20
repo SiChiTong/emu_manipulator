@@ -11,10 +11,11 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog,DatasetCatalog
 from detectron2.data.datasets import register_coco_instances
+from detectron2.utils.visualizer import ColorMode
 # import matplotlib.pyplot as plt
 import os
 import json
-from detectron2.structures import BoxMode
+from detectron2.structures import BoxMode, Instances,Boxes
 import time
 from detectron2.modeling import build_model
 from detectron2.checkpoint import DetectionCheckpointer
@@ -108,8 +109,36 @@ def initModel(testThresh=0.9,classNum = 3):
         # model.train(False)
         print("init complete")
         return predictor
-def visualModel(frame,outputs,classNum):
+def visualModel(frame,outputs,classNum,idx=None):
     if classNum == 3:
+        if idx!= None:
+            print(outputs["instances"].pred_masks.shape)
+            vis = Instances(image_size=(1128, 440))
+            classes=[outputs['instances'].pred_classes[0].item()]
+            scores=[outputs["instances"].scores[0].item()]
+            masks=outputs["instances"].pred_masks[0].reshape(1,440,1128)
+            boxes=outputs["instances"].pred_boxes[0]
+            
+            for i in idx[1:]:
+                
+                classes=classes+[outputs['instances'].pred_classes[i].item()]
+                scores=scores+[outputs["instances"].scores[i].item()]
+                
+                masks=torch.cat((masks,outputs["instances"].pred_masks[i].reshape(1,440,1128)),dim=0)
+                
+                boxes=Boxes.cat((boxes,outputs["instances"].pred_boxes[i]))
+                
+            vis.set('pred_classes', classes)
+            vis.set('scores', scores)
+            vis.set('pred_masks', masks)
+            vis.set('pred_boxes', boxes)
+               
+            
+            v = Visualizer(frame[:,:,::-1], MetadataCatalog.get("scrapble"), scale=0.8,instance_mode=ColorMode.IMAGE_BW )
+            v = v.draw_instance_predictions(vis.to("cpu"))
+        # cv2.imwrite("./output.jpg",v.get_image()[:, :, ::-1])
+            o_image = cv2.resize(v.get_image()[:, :, ::-1],(1128,440))
+            return o_image
     # # MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["bottle","can","snack"])
         v = Visualizer(frame[:,:,::-1], MetadataCatalog.get("scrapble"), scale=0.8)
         v = v.draw_instance_predictions(outputs["instances"].to("cpu"))

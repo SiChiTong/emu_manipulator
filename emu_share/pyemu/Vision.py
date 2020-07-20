@@ -149,7 +149,7 @@ class Vision():
                 trash.setType(tTrash)
                             # set trash orientation
                 trash.setOrient(tOrient)
-                
+                trash.setPredId(i)
                         # generate ros message
                 
                             # format x,y,z,quart
@@ -160,14 +160,25 @@ class Vision():
             trashList = sorted(trashList,key = getTypeTrashEle)
             cv2.destroyAllWindows()
             p = np.zeros((440,1128),dtype=np.uint8)
+            pId=[]
             for trash in trashList:
                 
-                picked_trash = cv2.bitwise_and(Tray1.getImg(),Tray1.getImg(),mask=trash.getMask())
-                p = cv2.bitwise_or(p,trash.getMask())
-                print(trash)
+                # picked_trash = cv2.bitwise_and(Tray1.getImg(),Tray1.getImg(),mask=trash.getMask())
+                # p = cv2.bitwise_or(p,trash.getMask())
+                # print(trash)
+                pId.append(trash.getPredId())
+                
                 # cv2.imshow('PickedTrash',picked_trash)
                 # cv2.waitKey(0)
-            pickedTrashTray = cv2.bitwise_and(Tray1.getImg(),Tray1.getImg(),mask=p)
+            pickedTrashTray = visualModel(frame, outputs,self.CLASSNUM,pId)
+            # pickedTrashTray = cv2.bitwise_and(Tray1.getImg(),Tray1.getImg(),mask=p)
+            # gray = cv2.cvtColor(Tray1.getImg(),cv2.COLOR_BGR2GRAY)
+            # gray = cv2.cvtColor(gray,cv2.COLOR_GRAY2BGR)
+            # pickGray = cv2.bitwise_and(gray,gray,mask=cv2.bitwise_not(p))
+            # # pickGray = np.stack((pickGray,)*3, axis=-1)
+            # orimg = cv2.bitwise_or(pickGray,pickedTrashTray)
+            cv2.imshow('pp',pickedTrashTray)
+            cv2.waitKey(0)
             Tray1.addPickedTrash(pickedTrashTray)
             # cv2.imshow('Pic Trash',pickedTrashTray)
             # cv2.waitKey()
@@ -188,8 +199,11 @@ class Vision():
     
     
     def pubPickedTrash(self,pub,traySide):
-        while(1):
+        rate = rospy.Rate(5)
+        while(not rospy.is_shutdown()):
+            
             if pub.get_num_connections()>0:
+                
                 if traySide == 'l':
                     Tray1 = self.TrayLeft
                 elif traySide == 'r':    
@@ -205,6 +219,7 @@ class Vision():
                 msg.data = img.flatten().tolist()
                 
                 pub.publish(msg)
+                rate.sleep()
                 print('send')
                 break
         

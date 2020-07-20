@@ -15,7 +15,7 @@ import cv2
 v = Vision(debug = True)
 rospy.init_node('vision', anonymous=True)
 pubTrashPose = rospy.Publisher('/emu/vision/trash_poses', PoseArray, queue_size = 20)
-pubLeftTray = rospy.Publisher('/emu/vision/left_tray', Image, queue_size = 20,latch=True)
+pubLeftTray = rospy.Publisher('/emu/vision/left_tray', Image, queue_size = 0,latch=True)
 pubRightTray = rospy.Publisher('/emu/vision/right_tray', Image, queue_size = 20,latch=True)
 cv2.namedWindow('test ai')
 cv2.waitKey(0)

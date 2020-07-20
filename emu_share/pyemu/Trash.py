@@ -10,6 +10,7 @@ class Trash():
         self.orient = None
         self.mask=  None
         self.box = None
+        self.predId = None
     def setX(self, x):
         self.x = x
     def setY(self, y):
@@ -24,6 +25,8 @@ class Trash():
         self.mask = mask
     def setBox(self, box):
         self.box = box
+    def setPredId(self,idx):
+        self.predId = idx
         
     def getX(self):
         return self.x
@@ -39,6 +42,8 @@ class Trash():
         return self.mask
     def getBox(self):
         return self.box[0].astype('int')
+    def getPredId(self):
+        return self.predId
     
     def __str__(self):
         r = R.from_quat(self.angle)
