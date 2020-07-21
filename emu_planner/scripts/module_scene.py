@@ -5,6 +5,8 @@ import copy
 import rospkg
 import rospy
 import geometry_msgs.msg
+from geometry_msgs.msg import PoseArray, Pose
+from sensor_msgs.msg import JointState
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 from std_msgs.msg import String
 
@@ -103,15 +105,19 @@ def trashGenCb(pA):
         gen_trash(sv, 'trash_{}'.format(num), pose)
     sv.sendColors()
 
+def binGenCb(js):
+    print ('Adding bins')
+    setBin(sv, js.name,js.position,js.velocity)
+    sv.sendColors()
 
-
-base_pose = geometry_msgs.msg.Pose()
+base_pose = Pose()
 base_pose.orientation.w = 1
 sv.addMesh('work_plane', base_pose, package_path+'/meshes/work_plane.STL')
 sv.setColor('work_plane', 0.9, 0.9, 0.9, 1)
-setBin(sv, ['yellow', 'blue', 'green'],[0.1, 0, 0.2],[0.32, -0.01, -0.33])
+
 
 sv.sendColors()
 
-rospy.Subscriber('/emu/vision/trash', geometry_msgs.msg.PoseArray, trashGenCb)
+rospy.Subscriber('/emu/vision/trash_poses', PoseArray, trashGenCb)
+rospy.Subscriber('/emu/vision/bin_poses', JointState, binGenCb)
 rospy.spin()

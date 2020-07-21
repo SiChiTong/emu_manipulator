@@ -77,6 +77,7 @@ class Emuart:
                 if expectedCrc32 != checksum: 
                     return -1 #if the data is wrong
                 else: 
+                    self.ser.reset_input_buffer()
                     return command, data #the data is right
             else:
                 self.ser.read() #clear the buffer until it pass if statement
@@ -120,6 +121,8 @@ class Emuart:
         crcSep = [(crc32>>24)&0xFF, (crc32>>16)&0xFF, (crc32>>8)&0xFF, crc32&0xFF]
         data = header+data+crcSep
         self.ser.write(bytes(data))
+        time.sleep(0.2)
+        self.ser.reset_output_buffer()
 
     def writeOls(self, jointNum, speed):
         speed = floatToBin(speed)
@@ -153,7 +156,7 @@ class Emuart:
             self.write(0x0C, [])
         elif _type is 'full':
             self.write(0x0D, [])
-        time.sleep(0.05)
+        time.sleep(0.01)
         d = self.read()
         return d
     
@@ -171,7 +174,7 @@ class Emuart:
         data = []
         for i in viapoints:
             data = data + singleTo4(floatToBin(i))
-        # print (data)
+        print (data, len(data))
         self.write(82, data)
         
 

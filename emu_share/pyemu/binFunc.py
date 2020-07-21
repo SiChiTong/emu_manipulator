@@ -53,7 +53,7 @@ def selectPoint(newimg,name):
         
         cv2.circle(img,tuple(pts[2]), 5, (255, 255, 255), -1)
         cv2.circle(img, tuple(pts[3]), 5, (0, 255, 0), -1)
-        cv2.imshow('img',img)
+        # cv2.imshow('img',img)
         
         
         if key == ord('q'):
@@ -198,8 +198,8 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
         # shape check
         if holeShape != shapeList[ind]:
             print("Error when finding hole shape!!")
-            cv2.imshow('detectBinmask',mask)
-            cv2.waitKey()
+            # cv2.imshow('detectBinmask',mask)
+            # cv2.waitKey()
         else:
             # get hole bounding box
             x,y,w,h = cv2.boundingRect(c)
@@ -228,8 +228,8 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
     for b in range(3):
         sortedBin[b].setPosition(b)
         # print(sortedBin[b],'\n')
-    cv2.imshow('detectBin',img)
-    cv2.waitKey(0)
+    # cv2.imshow('detectBin',img)
+    # cv2.waitKey(0)
     return sortedBin
 def transFrameBinToBase(x,y,z,scaleY):
     bx = 0.5
@@ -260,7 +260,8 @@ def getBinList(Cam,BinScaleWorld,BinScalePixel,frame,mode=0):
     # _,frame = video.read()
     # calibrate cam
     # frame = Cam.applyCalibate(frame)
-    cv2.imshow("ff",frame)
+    # cv2.imshow("ff",frame)
+    # cv2.waitKey()
     # find bin pose and color
     binList = detectBin(frame,BinScaleWorld,BinScalePixel,mode=mode)
     # set width scale and height scale of world coordinate

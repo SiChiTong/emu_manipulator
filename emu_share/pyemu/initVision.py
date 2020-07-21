@@ -19,6 +19,7 @@ from detectron2.structures import BoxMode, Instances,Boxes
 import time
 from detectron2.modeling import build_model
 from detectron2.checkpoint import DetectionCheckpointer
+import rospy
 import sys
 import rospkg
 rospack = rospkg.RosPack()
@@ -85,12 +86,16 @@ def initModel(testThresh=0.9,classNum = 3):
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = testThresh
         cfg.MODEL.DEVICE='cuda:0'
         # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.85
+        rospy.logdebug("init Predictor..")
         print("init Predictor..")
+        
         predictor = DefaultPredictor(cfg)
         # model = build_model(cfg)  # returns a torch.nn.Module
         # DetectionCheckpointer(model).load('./output/r50fpn_combine.pth')
         # model.train(False)
+        rospy.logdebug("init complete")
         print("init complete")
+        
         return predictor
     elif classNum == 6:
         register_coco_instances("6class", {}, ".", ".")
@@ -102,17 +107,21 @@ def initModel(testThresh=0.9,classNum = 3):
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = testThresh
         cfg.MODEL.DEVICE='cuda:0'
         # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.85
+        rospy.logdebug("init Predictor..")
         print("init Predictor..")
+        
         predictor = DefaultPredictor(cfg)
         # model = build_model(cfg)  # returns a torch.nn.Module
         # DetectionCheckpointer(model).load('./output/r50fpn_combine.pth')
         # model.train(False)
+        rospy.logdebug("init complete")
         print("init complete")
+        
         return predictor
 def visualModel(frame,outputs,classNum,idx=None):
     if classNum == 3:
         if idx!= None:
-            print(outputs["instances"].pred_masks.shape)
+            # print(outputs["instances"].pred_masks.shape)
             vis = Instances(image_size=(1128, 440))
             classes=[outputs['instances'].pred_classes[0].item()]
             scores=[outputs["instances"].scores[0].item()]

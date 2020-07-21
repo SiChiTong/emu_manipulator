@@ -408,8 +408,8 @@ def perspecTray(Tray,panomode,persmode,traySide,debug=False):
         # return edges
     # make perspective from tray edges
     # frame  = cv2.imread(package_path+"/tray.jpg")
-    cv2.imshow("f",frame)
-    cv2.waitKey()
+    # cv2.imshow("f",frame)
+    # cv2.waitKey()
     frame = applyPerspective(frame,1128,440,mode=persmode,traySide = traySide )
     return frame
 def make0TrayHomo(traySide):

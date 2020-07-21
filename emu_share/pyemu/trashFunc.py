@@ -108,7 +108,7 @@ def pickSequence(trashLists):
         bl = pts[np.argmax(diff)]
         area = sqrt((tl[0]-tr[0])**2+(tl[1]-tr[1])**2)*sqrt((tl[0]-bl[0])**2+(tl[1]-bl[1])**2)
         maskarea = cv2.contourArea(contours[0])
-        ratio = len(np.where(tmask==255)[0])/area
+        ratio = len(np.where(tmask==255)[0])/(area+1)
         # print('ratio',ele.getType(),ratio,maskarea,((bbox[2]-bbox[0])*(bbox[3]-bbox[1])),len(np.where(tmask==255)[0]),area)
         return ratio
     # check all intersect instance per this instance
@@ -148,44 +148,46 @@ def pickSequence(trashLists):
                 contours=np.concatenate(contours)
                 area = cv2.contourArea(contours)
                 print('bottle',area,cv2.minAreaRect(contours))#11000 9600
-                if len(intersLists)>1 and area >= 9000:
+                if len(intersLists)>1 and area >= 100:
                     pickLists.append(trash)
                 elif len(intersLists)==1:
                     pickLists.append(trash)
-                cv2.imshow('tmask',tmask)
-                cv2.waitKey(0)
+                # cv2.imshow('tmask',tmask)
+                # cv2.waitKey(0)
             if trash.getType() == 1:
                 tmask = trash.getMask()
                 im, contours, hierarchy = cv2.findContours(tmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                 contours=np.concatenate(contours)
                 area = cv2.contourArea(contours)
                 print('can',area,cv2.minAreaRect(contours))#5000
-                if len(intersLists)>1 and area >= 5000:
+                if len(intersLists)>1 and area >= 100:
                     pickLists.append(trash)
                 elif len(intersLists)==1:
                     pickLists.append(trash)
-                cv2.imshow('tmask',tmask)
-                cv2.waitKey(0)
+                # cv2.imshow('tmask',tmask)
+                # cv2.waitKey(0)
             if trash.getType() == 2:
                 tmask = trash.getMask()
                 
                 im, contours, hierarchy = cv2.findContours(tmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                 contours=np.concatenate(contours)
                 area = cv2.contourArea(contours)
-                if len(intersLists)>1 and area >= 2300:
+                if len(intersLists)>1 and area >= 100:
                     pickLists.append(trash)
                 elif len(intersLists)==1:
                     pickLists.append(trash)
                 print('snack',area,cv2.minAreaRect(contours))
-                cv2.imshow('tmask',tmask)
-                cv2.waitKey(0)
+                # cv2.imshow('tmask',tmask)
+                # cv2.waitKey(0)
         print('pickLists',len(pickLists))
         if len(pickLists) > 1:
             
             pickLists = sorted(pickLists,key=getRatio)
             robotPickLists.append(pickLists[-1])
-        else:
+        elif len(pickLists) == 1:
             robotPickLists.append(pickLists[0])
+        else:
+            print("error")
             # if lower then remove from picklist
             # if upper 
                 # check ratio between mask/bndboxarea
@@ -219,8 +221,8 @@ def pickSequence2(trashLists):
             if len(np.where(overlap==2)[0])>0:
                 print('intersect')
                 print(np.where(overlap<2,0,255).shape,strashMask.shape)
-                cv2.imshow('ins',np.where(overlap<2,0,255)*255)
-                cv2.waitKey()
+                # cv2.imshow('ins',np.where(overlap<2,0,255)*255)
+                # cv2.waitKey()
                 interstmask = np.bitwise_and(np.where(overlap<2,0,255),  tmask*1)
                 intersstarshmask = np.bitwise_and(np.where(overlap<2,0,255),strashMask*1)
                 print(len(np.where(interstmask==255)[0]))
@@ -230,7 +232,7 @@ def pickSequence2(trashLists):
             else:
                 print('not',len(np.where(overlap==2)[0]))
             
-            cv2.imshow('overlap',overlap*127)
-            cv2.waitKey(0)
+            # cv2.imshow('overlap',overlap*127)
+            # cv2.waitKey(0)
         pickLists = []
         

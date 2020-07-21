@@ -38,7 +38,7 @@ class Bin():
         
     def getHoleRealPtsWorld(self,xyz=None):
         if xyz != None:
-            return self.holeRealPtsWorld[xy]
+            return self.holeRealPtsWorld[xyz]
         else:
             return self.holeRealPtsWorld
         
