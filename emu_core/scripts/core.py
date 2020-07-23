@@ -12,9 +12,16 @@ import copy
 import rospkg
 import rospy
 
-from std_msgs.msg import String, Float64, Float32
+from std_msgs.msg import String, Float64, Float32, Header
 from geometry_msgs.msg import Twist, PoseArray, PoseStamped, Pose
 from sensor_msgs.msg import JointState,Image
+
+#moveit modules
+import moveit_commander
+from moveit_msgs.msg import RobotState
+import moveit_msgs.srv
+from moveit_commander.conversions import pose_to_list
+import moveit_mod
 
 rospack = rospkg.RosPack()
 this_pkg = rospack.get_path('emu_core')
@@ -25,7 +32,7 @@ import pyemu
 
 
 rospy.init_node('core')
-
+moveit_commander.roscpp_initialize(sys.argv)
 
 class Core:
 	def __init__(self, _port = '/dev/ttyTHS1'):
@@ -39,6 +46,8 @@ class Core:
 			'tray_right_3': [-pi/2, 0.09, 0.1503, (pi/2)-0.2, 0, 0],
 			'zero': [0, 0, 0, 0, 0, 0]}
 		self.lock = 0
+		self.commander = moveit_commander.RobotCommander()
+		self.planner = moveit_commander.MoveGroupCommander('arm')
 		self.vision = pyemu.Vision(debug = False)
 		self.port = _port
 		self.emulator = pyemu.Emuart(self.port)
@@ -51,20 +60,47 @@ class Core:
 		self.joint_msg.header.frame_id = "base_link"
 		self.joint_msg.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
 
+		self.__initPublisher()
+		self.__initSubscriber()
+
+		
+	def __initVison(self):
+		self.vision = pyemu.Vision(debug = False)
+
+	def __initPublisher(self):
 		self.emu_log = rospy.Publisher('emu/log', String, queue_size = 20)
 		self.joint_states_publisher = rospy.Publisher('emu/joint_states', JointState, queue_size = 20)
 		self.bin_pose_publisher = rospy.Publisher('emu/vision/bin_poses',JointState,queue_size = 20)
 		self.trash_poses_publisher = rospy.Publisher('emu/vision/trash_poses', PoseArray, queue_size = 20)
 		self.left_tray_publisher = rospy.Publisher('emu/vision/left_tray', Image, queue_size = 0,latch=True)
 		self.right_tray_publisher = rospy.Publisher('/emu/vision/right_tray', Image, queue_size = 20,latch=True)
-  
+
+	def __initSubscriber(self):
 		rospy.Subscriber('emu/jog/configuration', JointState, self.configJogCallback)
 		rospy.Subscriber('emu/jog/cartesian', Twist, self.cartesianJogCallback)
 		rospy.Subscriber('emu/command', String, self.__execute)
-	
-	# def initVison(self):
-	# 	self.vision = pyemu.Vision(debug = False)
-  
+
+	def plan(self, start_state, goal_state):
+		initial_joint_state = JointState()
+		initial_joint_state.header = Header()
+		initial_joint_state.header.stamp = rospy.Time.now()
+		initial_joint_state.name = self.joint_msg.name
+		initial_joint_state.position = start_state
+		robot_initial_state = RobotState()
+		robot_initial_state.joint_state = initial_joint_state
+		self.planner.set_start_state(robot_initial_state)
+		path = self.planner.plan(goal_state)
+		p,v,t = [],[],[]
+		lt = 0
+		for point in path.joint_trajectory.points:
+			p.append(point.positions)
+			v.append(point.velocities)
+			t_now = point.time_from_start.secs+(1e-9*point.time_from_start.nsecs)
+			t.append(t_now-lt)
+			lt = t_now
+		return p,v,t
+
+
 	def log(self, text, msg_type = None):
 		msg = String()
 		if msg_type == None:
