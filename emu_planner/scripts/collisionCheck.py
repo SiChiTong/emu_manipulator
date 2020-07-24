@@ -21,19 +21,26 @@ class StateValidity():
         self.joint_states_received = False
 
 
-    def checkCollision(self):
+    def checkCollision(self, _joint_position = None):
         '''
         check if robotis in collision
         '''
+        if _joint_position:
+            self.rs.joint_state.position = _joint_position
+            
+        else:
+            pass
         validity = self.getStateValidity()
         if validity.valid:
             rospy.loginfo('robot not in collision, all ok!')
+            return 1
         else:
             c = []
             rospy.logwarn('robot in collision')
             for i in validity.contacts:
                 c.append(i.contact_body_1+' : '+i.contact_body_2)
             rospy.logwarn(str(c))
+            return 0
 
 
     def jointStatesCB(self, msg):
@@ -41,7 +48,6 @@ class StateValidity():
         update robot state
         '''
         self.rs.joint_state.position = msg.position
-        # self.rs.joint_state.position = [0.610, -0.9, -0.4363, 0.349, -0.471, 1.343]
         self.joint_states_received = True
 
 
@@ -77,4 +83,5 @@ class StateValidity():
 if __name__ == '__main__':
     rospy.init_node('collision_checker_node', anonymous=False)
     collision_checker_node = StateValidity()
-    collision_checker_node.start_collision_checker()
+    collision_checker_node.checkCollision([-3.1,-3.1,0,0,0,0])
+    # collision_checker_node.start_collision_checker()

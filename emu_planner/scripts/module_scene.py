@@ -112,9 +112,10 @@ def binGenCb(js):
 
 base_pose = Pose()
 base_pose.orientation.w = 1
+
 sv.addMesh('work_plane', base_pose, package_path+'/meshes/work_plane.STL')
 sv.setColor('work_plane', 0.9, 0.9, 0.9, 1)
-
+setBin(sv, z = [0.3, 0.1, 0.2])
 
 sv.sendColors()
 

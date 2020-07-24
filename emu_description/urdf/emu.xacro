@@ -206,7 +206,7 @@
         <parent link="base_link"/>
         <child link="link_1"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-3.1066" upper = "3.1066" effort = "1000" velocity = "1000"/>
+        <limit lower = "-3.1066" upper = "3.1066" effort = "1000" velocity = "2.5" acceleration = "1"/>
         <dynamics damping="0.1"/>
     </joint>
 
@@ -214,7 +214,7 @@
         <parent link="link_1"/>
         <child link="link_2"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-2.917" upper = "1.703" effort = "1000" velocity = "1000"/>
+        <limit lower = "-2.917" upper = "1.703" effort = "1000" velocity = "1.5" acceleration = "1"/>
         <origin rpy="1.57075 0 0" xyz = "0.12596 0 0.30767"/>
         <dynamics damping="0.1"/>
     </joint>
@@ -223,7 +223,7 @@
         <parent link="link_2"/>
         <child link="link_3"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-1.4312" upper = "4.1190" effort = "1000" velocity = "1000"/>
+        <limit lower = "-1.4312" upper = "4.1190" effort = "1000" velocity = "2.5" acceleration = "1"/>
         <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
         <dynamics damping="0.1"/>
     </joint>
@@ -232,7 +232,7 @@
         <parent link="link_3"/>
         <child link="link_4"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "1000"/>
+        <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "1.5" acceleration = "2"/>
         <origin rpy="1.57075 0 0" xyz = "0.05 0 0"/>
         <dynamics damping="0.03"/>
     </joint>
@@ -241,7 +241,7 @@
         <parent link="link_4"/>
         <child link="link_5"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "1000"/>
+        <limit lower = "-3.1067" upper = "3.1067" effort = "1000" velocity = "2" acceleration = "2"/>
         <origin rpy="-1.57075 0 0" xyz = "0 0 0.466"/>
         <dynamics damping="0.01"/>
     </joint>
@@ -250,7 +250,7 @@
         <parent link="link_5"/>
         <child link="link_6"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "10"/>
+        <limit lower = "-3.1067" upper = "3.1067" effort = "50" velocity = "2" acceleration = "2"/>
         <origin rpy="1.57075 0 0" xyz = "0 -0.043 0"/>
         <!-- <origin rpy="1.57075 0 0" xyz = "0 0 0"/> -->
         <dynamics damping="0"/>

@@ -21,42 +21,56 @@ import moveit_msgs.srv
 from moveit_commander.conversions import pose_to_list
 import moveit_mod
 
+from collisionCheck import StateValidity
+
 #add share pyemu
 rospack = rospkg.RosPack()
 share_pkg = rospack.get_path('emu_share')
 sys.path.append(share_pkg)
 package_path = rospack.get_path('emu_planner')
-import pyemu
+# import pyemu
 
 
 moveit_commander.roscpp_initialize(sys.argv)
-rospy.init_node('modules state space', anonymous=True)
+rospy.init_node('modules_state_space', anonymous=True)
 
 robot = moveit_commander.RobotCommander()
 ss = moveit_commander.MoveGroupCommander('arm')
+sv = StateValidity()
 
-# print (move_group.get_planning_frame())
+joint_goal = ss.get_current_joint_values()
+joint_goal[0] = -0.907571
+joint_goal[1] = -1.25
+joint_goal[2] = 0.94
+joint_goal[3] = -0.907
+joint_goal[4] = -0.768
+joint_goal[5] = -1.309
 
-# print (move_group.get_end_effector_link())
+path = ss.plan(joint_goal)
 
-# print (robot.get_group_names())
+# print (path)
+print (len(path.joint_trajectory.points))
+p,v,t = [],[],[]
+lt = 0
+for point in path.joint_trajectory.points:
+    p.append(point.positions)
+    v.append(point.velocities)
+    t_now = point.time_from_start.secs+(1e-9*point.time_from_start.nsecs)
+    t.append(t_now-lt)
+    lt = t_now
+    print (lt)
+print (p,v, t)
+# path_len = len(path.joint_trajectory.points)
+# simple_path = [path.joint_trajectory.points[0].positions]
+# last_point = path.joint_trajectory.points[0].positions
+# for point in path.joint_trajectory.points[1:path_len]:
+#     if sv.checkCollision(point.positions):
+#         pass
+#     else:
+#         simple_path.append(last_point)
+#     last_point = point.positions
 
-# print (robot.get_current_state())
+# simple_path.append(path.joint_trajectory.points[path_len-1].positions)
 
+# print(simple_path)
 
-
-# joint_goal = move_group.get_current_joint_values()
-# joint_goal[0] = 0.907571
-# joint_goal[1] = -0.89011
-# joint_goal[2] = 0.64577
-# joint_goal[3] = 1.37881
-# joint_goal[4] = 0.925025
-# joint_goal[5] = -1.27409
-
-# path = move_group.plan(joint_goal)
-
-# print (len(path.joint_trajectory.points))
-# # print path.joint_trajectory.points
-# move_group.go(joint_goal, wait = True)
-
-# move_group.stop()
