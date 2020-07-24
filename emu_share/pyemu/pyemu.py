@@ -4,7 +4,7 @@ try:
     from .util import kinematics
 except:
     from util import kinematics
-    
+from scipy.spatial.transform import Rotation as R
 class EmuRobot:
     def __init__(self, tool_length = 0):
         self.L1, self.L2, self.Le = 0.12596, 0.466, 0.121
@@ -75,7 +75,9 @@ class EmuRobot:
                 else:
                     q[3] = 0
                     q[5] = 0
-                
+                q[3] = 0
+                q[4] = 0
+                q[5] = 0
             except:
                 nan = np.nan
                 q = np.matrix([nan, nan, nan, nan, nan, nan]).T
@@ -95,10 +97,11 @@ class EmuRobot:
         lastq = p_q[:,~np.all(np.isnan(p_q), axis=0)]
         if lastq is not None:
             lastq = lastq.reshape(len(lastq[0]),6)
+            
             if method == 'least_dist':
                 dist = abs(lastq-q_now)
                 cost = np.sum(dist, axis = 1)
-                return lastq[np.array(list(cost).index(min(cost)))]
+                return list(lastq[np.array(list(cost).index(min(cost)))])
             else:
                 return lastq
         else:
@@ -111,10 +114,20 @@ class EmuRobot:
     def getToolJog(self, q_now, increment, numDof = 6):
         # return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
         return 0
+    
+    @staticmethod
+    def rotm2quart(rotm):
+        r = R.from_matrix(rotm)
+        return r.as_quat()
+    @staticmethod
+    def quat2rotm(quat):
+        r = R.from_quat(quat)
+        return r.as_matrix()
 if __name__ == '__main__':
     a = EmuRobot()
     tf = np.matrix('1 0 0 -0.5;0 1 0 0;0 0 1 0.5;0 0 0 1')
-    print (a)
+    b=EmuRobot.quat2rotm([1,0,0,0])
+    print (a,b)
     # print (a.getTransform([0,0,0,0,0,0], 6).round(decimals=4))
     print (a.computeIK(a.getTransform([pi/2,0,0,0,0.00001,0], 6), 'least_dist', [pi/2, 0, 0, 0.4, 0.01, 0]).round(decimals=4))
     # print (a.getJacobian([0,0,0,0,1,0], 3).round(decimals=4))

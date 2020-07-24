@@ -18,14 +18,14 @@ from geometry_msgs.msg import PoseArray,Pose
 def getTypeTrashEle(trash):
     return trash.getType()
 class Vision():
-    def __init__(self,debug = False):
+    def __init__(self,debug = False,emuLog=None):
         self.WIDTH = 1024
         self.HEIGHT = 576
         self.CALIBRATE = True
         self.CAMINDEX = 0
-        self.TESTTHRESHOLD = 0.85
-        self.BinScaleWorld = [0.10,0.4] # setnew scale
-        self.BinScalePixel = [83,576] # set newscale
+        self.TESTTHRESHOLD = 0.9
+        self.BinScaleWorld = [0.775,0.508] # setnew scale
+        self.BinScalePixel = [1024,576] # set newscale
         self.CLASSNUM = 3
         self.TrayLeft = Tray()
         self.TrayRight = Tray()
@@ -34,6 +34,7 @@ class Vision():
         self.model = initModel(self.TESTTHRESHOLD,self.CLASSNUM)
         self.debug = debug
         self.binImg = None
+        self.log = emuLog
     def getBin(self,mode=0):
         img = self.binImg
         binList = getBinList(self.Cam,self.BinScaleWorld,self.BinScalePixel,img,mode=mode)
@@ -62,6 +63,8 @@ class Vision():
                 
                 cv2.imshow('frame',frame)
                 if cv2.waitKey(1) & 0xFF==ord('d'):
+                    self.binImg = frame
+                    
                     return frame
                     break
         else:
@@ -114,14 +117,16 @@ class Vision():
                 cv2.imshow('frame',frame)
                 cv2.waitKey(0)
                 
-            wScale = 1.41/1128
-            hScale = 0.55 / 440
+            wScale = 1.286/1008
+            hScale = 0.565 / 440
                 # feed persTray to model
+            print("start predict")
             outputs = self.model(frame)
-            print(outputs)
+            print("Predict done")
+            # print(outputs)
                 # model return trash mask and type
             tra = visualModel(frame, outputs,self.CLASSNUM)
-            Tray1.addImg(frame)
+            Tray1.addImg(tra)
             if self.debug:
                 cv2.imshow('trash',tra)
                 cv2.waitKey(0)
@@ -131,7 +136,7 @@ class Vision():
                 # loop per number of trash
             trashList = []
             if trashNum == 0:
-                return None,Tray1.getImg(),trashNum
+                return None,self._msgImgPickedTrash(traySide,Tray1.getImg()),trashNum
             else:
                 for i in range(trashNum):
                         # cal position of trash
@@ -185,6 +190,8 @@ class Vision():
                                 # z is two digit int 
                     trashList.append(trash)
                 trashList = pickSequence(trashList)
+                if len(trashList)==0:
+                    return None,self._msgImgPickedTrash(traySide,Tray1.getImg()),trashNum
                 trashList = sorted(trashList,key = getTypeTrashEle)
                 cv2.destroyAllWindows()
                 p = np.zeros((440,1128),dtype=np.uint8)
@@ -195,7 +202,7 @@ class Vision():
                     # p = cv2.bitwise_or(p,trash.getMask())
                     # print(trash)
                     pId.append(trash.getPredId())
-                    
+                    print(trash)
                     # cv2.imshow('PickedTrash',picked_trash)
                     # cv2.waitKey(0)
                 pickedTrashTray = visualModel(frame, outputs,self.CLASSNUM,pId)
@@ -245,14 +252,19 @@ class Vision():
             # print([trash.getX(),trash.getY(),trash.getOrient()*10+trash.getType()+1,trash.getAngle()[0],trash.getAngle()[1],trash.getAngle()[2],trash.getAngle()[3]])
             trashMsg.poses.append(trash_i)
         return trashMsg
-    def _msgImgPickedTrash(self,traySide):
+    def _msgImgPickedTrash(self,traySide,imgN=None):
         
         
         if traySide == 'l':
             Tray1 = self.TrayLeft
         elif traySide == 'r':    
             Tray1 = self.TrayRight
-        img = Tray1.getPickedTrash()
+        if type(imgN) == type(None):
+            img = Tray1.getPickedTrash()
+        else:
+            img = Tray1.getImg()
+        img = Tray1.getImg()
+        
         msg = Image()
         msg.header = Header()
         msg.height = img.shape[0]

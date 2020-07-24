@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from math import sin, cos, tan, pi
+from math import sin, cos, tan, pi, ceil
 import time
 import logging
 import threading
@@ -33,10 +33,10 @@ class Core:
 			'bin_snap': [0, 1.2, -0.02, pi/2, 0, 0], 
 			'tray_left_1': [pi/2, 0.09, 0.1503, (pi/2)+0.2, 0, 0],
 			'tray_left_2': [pi/2, 0.09, 0.1503, pi/2, 0, 0],
-			'tray_left_3': [pi/2, 0.09, 0.1503, (pi/2)-0.2, 0, 0],
+			'tray_left_3': [pi/2, 0.09, 0.1503, (pi/2)-0.2-0.05, 0, 0],
 			'tray_right_1': [-pi/2, 0.09, 0.1503, (pi/2)+0.2, 0, 0],
 			'tray_right_2': [-pi/2, 0.09, 0.1503, pi/2, 0, 0],
-			'tray_right_3': [-pi/2, 0.09, 0.1503, (pi/2)-0.2, 0, 0],
+			'tray_right_3': [-pi/2, 0.09, 0.1503, (pi/2)-0.2-0.05, 0, 0],
 			'zero': [0, 0, 0, 0, 0, 0]}
 		self.lock = 0
 		self.vision = pyemu.Vision(debug = False)
@@ -46,7 +46,7 @@ class Core:
 		while not self.emulator.established():
 			pass
 
-		self.joint_rate = rospy.Rate(3)
+		self.joint_rate = rospy.Rate(5)
 		self.joint_msg = JointState()
 		self.joint_msg.header.frame_id = "base_link"
 		self.joint_msg.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
@@ -64,11 +64,25 @@ class Core:
 	
 	# def initVison(self):
 	# 	self.vision = pyemu.Vision(debug = False)
-  
+	def pickTrashCfg(self,trashMsgList):
+		listCfg=[]
+		for trashMsg in trashMsgList.poses :
+			Hi = np.matrix(np.eye(4))
+			x = trashMsg.position.x
+			y = trashMsg.position.y
+			z = 0.3
+			r = pyemu.EmuRobot.quat2rotm([trashMsg.orientation.x,trashMsg.orientation.y,trashMsg.orientation.z,trashMsg.orientation.w])
+			Hi[0:3,0:3]=r
+			Hi[0:3,3]=np.matrix([[x],[y],[z]])
+			trashCfg = self.kin_solver.computeIK(tf = Hi,q_now=[0, 0, pi/2, pi/2, 0, pi/4], method = 'least_dist')
+			listCfg.append(trashCfg)
+		return listCfg
+
 	def log(self, text, msg_type = None):
+		text = str(text)
 		msg = String()
 		if msg_type == None:
-			rospy.logdebug(text)
+			rospy.loginfo(text)
 			head = 'd_'
 		elif msg_type == 'warn':
 			rospy.logwarn(text)
@@ -79,6 +93,20 @@ class Core:
 		msg.data = head+text
 		self.emu_log.publish(msg)
 
+	def getStates(self):
+		return self.joint_msg.position
+
+	def notMoving(self, last_pose, tol):
+		pose_now = self.getStates()
+		self.log(pose_now)
+		d = [0,0,0,0,0,0]
+		for i in range(0,6):
+			d[i] = pose_now[i] - last_pose[i]
+		if sum(d) < tol:
+			return 1
+		else:
+			return 0
+	
 	def __execute(self, cmd):
 		cmd_object = 'ret = self.'+cmd.data
 		cmd_static = 'ret = '+cmd.data
@@ -86,15 +114,11 @@ class Core:
 		print (cmd.data)
 		try:
 			exec(cmd_object)
-			if ret is None:
-				pass
-			else:
-				rospy.logdebug('Return: '+str(ret))
 		except AttributeError:
 			exec(cmd_static)
 		except Exception as e:
 			print (e)
-			rospy.logerr('Wrong Input: '+e)
+			rospy.logerr(e)
 		if ret is None:
 				pass
 		else:
@@ -104,78 +128,81 @@ class Core:
 		self.lock = 1
 		time.sleep(0.1)
 		self.emulator.moveAbsolute('all', pose, t)
-		time.sleep(0.1)
-		self.emulator.moveAbsolute('all', pose, t)
-		time.sleep(0.1)
-		self.emulator.moveAbsolute('all', pose, t)
-		time.sleep(0.1)
-		# print (self.emulator.read())
 		self.lock = 0
   
 	def moveOne(self, joint, goal, t):
 		self.lock = 1
 		time.sleep(0.1)
 		self.emulator.moveAbsolute(joint, goal, t)
-		time.sleep(0.1)
-		self.emulator.moveAbsolute(joint, goal, t)
-		time.sleep(0.1)
-		self.emulator.moveAbsolute(joint, goal, t)
-		time.sleep(0.1)
-		# print (self.emulator.read())
 		self.lock = 0
- 
+	
+	def moveDelay(self, last_pose, num_check, t, last_cmd):
+		for _ in range(0, num_check):
+			a = self.notMoving(last_pose, 0.1)
+			if a == 1:
+				exec(last_cmd)
+			self.log(a)
+			time.sleep(t/num_check)
+  
 	def run(self, script):
 		self.log('Hello There!')
+		last_pose = self.getStates()
 		self.moveTo(self.preconfig_pose['bin_snap'],8)
-		time.sleep(11)
+		self.moveDelay(last_pose, 5, 10, 'self.moveTo(self.preconfig_pose[\'bin_snap\'],10)')
 		self.log('Start snap bin')
 
-		self.vision.snapBinImg()
-		self.log('Snap bin finish')
-		self.log('find bin pose')
-		binMsg = self.vision.getBin()
-		self.bin_pose_publisher.publish(binMsg)
+		# # self.vision.snapBinImg()
+		# # self.log('Snap bin finish')
+		# # self.log('find bin pose')
+		# # binMsg = self.vision.getBin()
+		# # self.bin_pose_publisher.publish(binMsg)
+  
 		self.log('Bin position: Done!')
-
+		time.sleep(0.5)
 		self.log('Moving to left tray 1')
-		self.moveTo(self.preconfig_pose['tray_left_1'],20)
-		time.sleep(23)
+		last_pose = self.getStates()
+		self.moveTo(self.preconfig_pose['tray_left_1'],16)
+		self.moveDelay(last_pose, 8, 18, 'self.moveTo(self.preconfig_pose[\'tray_left_1\'],17)')
 		self.log('snap pano left 1')
 		self.vision.snapPano('l')
 		self.log('Moving to left tray 2')
-		self.moveOne(4, pi/2, 3)
-		time.sleep(3.5)
+		last_pose = self.getStates()
+		self.moveOne(4, pi/2, 5)
+		self.moveDelay(last_pose, 4, 6, 'self.moveOne(4, pi/2, 3)')
 		self.log('snap pano left 2')
 		self.vision.snapPano('l')
 		self.log('Moving to left tray 3')
-		self.moveOne(4, (pi/2)-0.2, 3)
-		time.sleep(3.5)
+		last_pose = self.getStates()
+		self.moveOne(4, (pi/2)-0.2-0.5, 5)
+		self.moveDelay(last_pose, 4, 6, 'self.moveOne(4, (pi/2)-0.2-0.5, 3)')
 		self.log('snap pano left 3')
 		self.vision.snapPano('l')
 		self.log('start Predict')
 		leftTrashMsg,leftTrayImg,leftTrashNum = self.vision.findTrash('l',panomode=0,persmode=0)
-		self.log('Left tray: Done!')
+		self.log('Left tray: Done!  {} '.format(leftTrashNum))
 
 		self.log('Moving to right tray 1')
+		last_pose = self.getStates()
 		self.moveTo(self.preconfig_pose['tray_right_1'],10)
-		time.sleep(13)
+		self.moveDelay(last_pose, 7, 15, 'self.moveTo(self.preconfig_pose[\'tray_right_1\'],12)')
 		self.log('snap pano right 1')
 		self.vision.snapPano('r')
 		self.log('Moving to right tray 2')
-		self.moveOne(4, pi/2, 3)
-		time.sleep(3.5)
+		last_pose = self.getStates()
+		self.moveOne(4, pi/2, 5)
+		self.moveDelay(last_pose, 4, 6, 'self.moveOne(4, pi/2, 3)')
 		self.log('snap pano right 2')
 		self.vision.snapPano('r')
 		self.log('Moving to right tray 3')
-		self.moveOne(4, (pi/2)-0.2, 3)
-		time.sleep(3.5)
+		last_pose = self.getStates()
+		self.moveOne(4, (pi/2)-0.2-0.05, 5)
+		self.moveDelay(last_pose, 4, 6, 'self.moveOne(4, (pi/2)-0.2-0.05, 3)')
 		self.log('snap pano right 3')
-  
 		self.vision.snapPano('r')
 		self.log('start Predict')
 
 		rightTrashMsg,rightTrayImg,rightTrashNum = self.vision.findTrash('r',panomode=0,persmode=0)
-		self.log('Right tray: Done!')
+		self.log('Right tray: Done!  {} '.format(rightTrashNum))
   
 		if leftTrashNum + rightTrashNum == 0:
 			pass
@@ -186,7 +213,7 @@ class Core:
 
 				time.sleep(0.1)
 			else:
-				self.left_tray_publisher.publish(leftTrayImg)
+				# self.left_tray_publisher.publish(leftTrayImg)
 				pass
 			time.sleep(0.1)
 			if rightTrashNum != 0:
@@ -195,15 +222,23 @@ class Core:
 
 				time.sleep(0.1)
 			else:
-				self.right_tray_publisher.publish(rightTrayImg)
+				# self.right_tray_publisher.publish(rightTrayImg)
+				pass
+		last_pose = self.getStates()
+		config_togo = self.pickTrashCfg(leftTrashMsg)
+		for i in config_togo:
+			self.moveTo(i, 15)
+			self.moveDelay(last_pose, 5, 18, 'self.moveTo(i, 15)')
+			self.moveTo(self.preconfig_pose['home'], 15)
+			self.moveDelay(last_pose, 5, 18, 'self.moveTo(self.preconfig_pose[\'home\'], 15)')
+
 		
 
-
-		time.sleep(1)
-		print ('Moving to home')
-		self.moveTo(self.preconfig_pose['home'], 15)
-		time.sleep(16)
-		print ('Done!')
+		# time.sleep(1)
+		# self.log ('Moving to home')
+		# self.moveTo(self.preconfig_pose['home'], 15)
+		# time.sleep(16)
+		# self.log ('Done!')
 		
 		# script_path = this_pkg+'/scripts/'+script
 		# script_in = open(script_path)

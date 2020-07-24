@@ -20,30 +20,44 @@ pubRightTray = rospy.Publisher('/emu/vision/right_tray', Image, queue_size = 20,
 # cv2.namedWindow('test ai')
 # cv2.waitKey(0)
 # bins = cv2.imread(package_path+'/bin14.jpg')
-img = v.snapBinImg()
-v.getBin(img,mode=0)
-cv2.waitKey(0)
+# img = v.snapBinImg()
+# v.getBin(mode=1)
+# cv2.waitKey(0)
 print("snappano")
 traySide = 'l'
-v.snapPano(traySide,testImg = package_path+'/deploy1.jpg')
-# v.snapPano(traySide)
+# # v.snapPano(traySide,testImg = package_path+'/deploy1.jpg')
+v.snapPano(traySide)
 
-# cv2.waitKey(0)
-v.snapPano(traySide,testImg = package_path+'/deploy2.jpg')
+cv2.waitKey(0)
+# # v.snapPano(traySide,testImg = package_path+'/deploy2.jpg')
 
-# v.snapPano(traySide)
-# cv2.waitKey(0)
-v.snapPano(traySide,testImg = package_path+'/deploy3.jpg')
+v.snapPano(traySide)
+cv2.waitKey(0)
+# # v.snapPano(traySide,testImg = package_path+'/deploy3.jpg')
 
-# v.snapPano(traySide)
-# cv2.waitKey(0)
-trashPose,pickTrashImg = v.findTrash(traySide,panomode=0,persmode=0)
+v.snapPano(traySide)
+cv2.waitKey(0)
+trashPose,pickTrashImg,trashNum = v.findTrash(traySide,panomode=0,persmode=0)
 print("Getted trash")
-cv2.imwrite(package_path+"/getPickedTrash.jpg",v.getPickedTrash(traySide))
+# cv2.imwrite(package_path+"/getPickedTrash.jpg",v.getPickedTrash(traySide))
 
 cv2.imshow("getPickedTrash",v.getPickedTrash(traySide))
 cv2.waitKey()
 
+
+# def pickTrashCfg(self,trashMsgList):
+#     listCfg=[]
+#     for trashMsg in trashMsgList :
+#         Hi = np.matrix(np.eye(4))
+#         x = trashMsg.x
+#         y = trashMsg.y
+#         z = 0.3
+#         r = pyemu.quat2rotm([trashMsg.orientation.x,trashMsg.orientation.y,trashMsg.orientation.z,trashMsg.orientation.w])
+#         Hi[0:3,0:3]=r
+#         Hi[0:3,3]=np.matrix([[x],[y],[z]])
+#         trashCfg = pyemu.computeIK(tf = Hi,q_now=self.getJointStates())
+#         listCfg.append(trashCfg)
+#     return listCfg
 # trashMsg = PoseArray()
 # trashMsg.header.frame_id="base_link"
 # now = rospy.get_rostime()

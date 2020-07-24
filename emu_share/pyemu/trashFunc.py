@@ -116,7 +116,7 @@ def pickSequence(trashLists):
     robotPickLists=[]
     while len(trashLists)> 0:
         # sub loop trash in trashLists except self:
-        tray = np.zeros((400,1000),dtype=np.uint8)
+        tray = np.zeros((440,1008),dtype=np.uint8)
         mtray = tray.copy()
         
         mtrash = trashLists[0].getBox()
@@ -148,7 +148,7 @@ def pickSequence(trashLists):
                 contours=np.concatenate(contours)
                 area = cv2.contourArea(contours)
                 print('bottle',area,cv2.minAreaRect(contours))#11000 9600
-                if len(intersLists)>1 and area >= 100:
+                if len(intersLists)>1 and area >= 9000:
                     pickLists.append(trash)
                 elif len(intersLists)==1:
                     pickLists.append(trash)
@@ -160,7 +160,7 @@ def pickSequence(trashLists):
                 contours=np.concatenate(contours)
                 area = cv2.contourArea(contours)
                 print('can',area,cv2.minAreaRect(contours))#5000
-                if len(intersLists)>1 and area >= 100:
+                if len(intersLists)>1 and area >= 4600:
                     pickLists.append(trash)
                 elif len(intersLists)==1:
                     pickLists.append(trash)
@@ -172,7 +172,7 @@ def pickSequence(trashLists):
                 im, contours, hierarchy = cv2.findContours(tmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                 contours=np.concatenate(contours)
                 area = cv2.contourArea(contours)
-                if len(intersLists)>1 and area >= 100:
+                if len(intersLists)>1 and area >= 4000:
                     pickLists.append(trash)
                 elif len(intersLists)==1:
                     pickLists.append(trash)

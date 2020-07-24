@@ -122,10 +122,10 @@ def visualModel(frame,outputs,classNum,idx=None):
     if classNum == 3:
         if idx!= None:
             # print(outputs["instances"].pred_masks.shape)
-            vis = Instances(image_size=(1128, 440))
+            vis = Instances(image_size=(1008, 440))
             classes=[outputs['instances'].pred_classes[0].item()]
             scores=[outputs["instances"].scores[0].item()]
-            masks=outputs["instances"].pred_masks[0].reshape(1,440,1128)
+            masks=outputs["instances"].pred_masks[0].reshape(1,440,1008)
             boxes=outputs["instances"].pred_boxes[0]
             
             for i in idx[1:]:
@@ -133,7 +133,7 @@ def visualModel(frame,outputs,classNum,idx=None):
                 classes=classes+[outputs['instances'].pred_classes[i].item()]
                 scores=scores+[outputs["instances"].scores[i].item()]
                 
-                masks=torch.cat((masks,outputs["instances"].pred_masks[i].reshape(1,440,1128)),dim=0)
+                masks=torch.cat((masks,outputs["instances"].pred_masks[i].reshape(1,440,1008)),dim=0)
                 
                 boxes=Boxes.cat((boxes,outputs["instances"].pred_boxes[i]))
                 
@@ -146,18 +146,18 @@ def visualModel(frame,outputs,classNum,idx=None):
             v = Visualizer(frame[:,:,::-1], MetadataCatalog.get("scrapble"), scale=0.8,instance_mode=ColorMode.IMAGE_BW )
             v = v.draw_instance_predictions(vis.to("cpu"))
         # cv2.imwrite("./output.jpg",v.get_image()[:, :, ::-1])
-            o_image = cv2.resize(v.get_image()[:, :, ::-1],(1128,440))
+            o_image = cv2.resize(v.get_image()[:, :, ::-1],(1008,440))
             return o_image
     # # MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["bottle","can","snack"])
         v = Visualizer(frame[:,:,::-1], MetadataCatalog.get("scrapble"), scale=0.8)
         v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     # cv2.imwrite("./output.jpg",v.get_image()[:, :, ::-1])
-        o_image = cv2.resize(v.get_image()[:, :, ::-1],(1128,440))
+        o_image = cv2.resize(v.get_image()[:, :, ::-1],(1008,440))
         return o_image
     elif classNum == 6:
         # # MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["bottle","can","snack"])
         v = Visualizer(frame[:,:,::-1], MetadataCatalog.get("6class"), scale=0.8)
         v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     # cv2.imwrite("./output.jpg",v.get_image()[:, :, ::-1])
-        o_image = cv2.resize(v.get_image()[:, :, ::-1],(1128,440))
+        o_image = cv2.resize(v.get_image()[:, :, ::-1],(1008,440))
         return o_image

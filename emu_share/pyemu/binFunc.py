@@ -45,7 +45,6 @@ def selectPoint(newimg,name):
     
     while(1):
         img=newimg.copy()
-        key = cv2.waitKey(1) & 0xFF
         x1,y1,x2,y2,x3,y3,x4,y4 = readTrackbar('test')
         pts = np.array([[x1,y1],[x2,y2],[x3,y3],[x4,y4]])
         cv2.circle(img, tuple(pts[0]), 5, (0, 0, 255), -1)
@@ -53,7 +52,8 @@ def selectPoint(newimg,name):
         
         cv2.circle(img,tuple(pts[2]), 5, (255, 255, 255), -1)
         cv2.circle(img, tuple(pts[3]), 5, (0, 255, 0), -1)
-        # cv2.imshow('img',img)
+        cv2.imshow('img',img)
+        key = cv2.waitKey(1) & 0xFF
         
         
         if key == ord('q'):
@@ -98,7 +98,7 @@ def applyPerspective(img,w,h,name,mode=0,):
     dst = np.array([[0,0],[w-1,0],[0,h-1],[w-1, h-1]], np.float32)
     M = cv2.getPerspectiveTransform(temp_rect,dst)
     warp = cv2.warpPerspective(img, M, (w, h))
-    # print(temp_rect,ind,newLid)
+    print("perShape",warp.shape)
     return warp
 def detectBin(img,binScaleWorld,binScalePixel,mode=0):
     # helper function
@@ -148,7 +148,7 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
     # parameter
     yHsv = [19, 51, 154, 35, 255, 255]
     gHsv = [37, 23, 70, 86, 255, 255]
-    bHsv = [86, 30, 0, 162, 255, 255]
+    bHsv = [90, 40, 70, 162, 255, 255]
     
     yShapeLab = [0, 79, 87, 110, 179, 148]
     gShapeLab = [0, 80, 72, 21, 140, 142]
@@ -164,13 +164,14 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
     colorList = ['yellow','green','blue']
     binList = []
     # perspective 
-    img = applyPerspective(img,1024,576,'binPer',mode=mode)
+    img = applyPerspective(img,1024,576,'binPer',mode=0)
     # loop for three bin start with yellow green blue
     for ind in range(3):
         # color segment with hsv
         mask = colorSegment(img,hsvList[ind])
         mask = cv2.morphologyEx(mask,cv2.MORPH_OPEN, np.ones((7,7),np.uint8))
-        
+        cv2.imshow('clrseg',mask)
+        cv2.waitKey()
         # get bin contours
         _,contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
@@ -227,14 +228,14 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
     
     for b in range(3):
         sortedBin[b].setPosition(b)
-        # print(sortedBin[b],'\n')
-    # cv2.imshow('detectBin',img)
-    # cv2.waitKey(0)
+        print(sortedBin[b],'\n')
+    cv2.imshow('detectBin',img)
+    cv2.waitKey(0)
     return sortedBin
 def transFrameBinToBase(x,y,z,scaleY):
-    bx = 0.5
-    by = 0.49
-    bz = 0.36
+    bx = 0.22+0.346
+    by = 0.415+0.02+0.075-0.08
+    bz = 0.34-0.005
     h0_cvp = Frame('0','cvp',np.matrix( [[1, 0, 0, bx],[0, 1, 0, by],[0, 0, 1, bz],[0, 0, 0, 1]] ))
 
     bx = 0
@@ -275,7 +276,10 @@ def getBinList(Cam,BinScaleWorld,BinScalePixel,frame,mode=0):
         y = binList[i].getHolePtsWorld(1)
         z = 0 
         f = transFrameBinToBase(x,y,z,binFrameHeight)
+        if f[2,3]>=0.7:
+            f[2,3]+=0.02
         pts = (f[0,3],f[1,3],f[2,3])
+        
         binList[i].setHoleRealPtsWorld(pts)
         print(binList[i])
     return binList

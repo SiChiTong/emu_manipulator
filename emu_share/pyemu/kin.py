@@ -67,3 +67,7 @@ class kinematics:
     def rotm2quart(rotm):
         r = R.from_matrix(rotm)
         return r.as_quat()
+    @staticmethod
+    def quat2rotm(quat):
+        r = R.from_quat(quat)
+        return r.as_matrix()

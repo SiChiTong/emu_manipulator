@@ -410,17 +410,17 @@ def perspecTray(Tray,panomode,persmode,traySide,debug=False):
     # frame  = cv2.imread(package_path+"/tray.jpg")
     # cv2.imshow("f",frame)
     # cv2.waitKey()
-    frame = applyPerspective(frame,1128,440,mode=persmode,traySide = traySide )
+    frame = applyPerspective(frame,1008,440,mode=persmode,traySide = traySide )
     return frame
 def make0TrayHomo(traySide):
     if traySide == 'l':
-        h = np.matrix([[1,0,0,-0.74],
-                    [0,cos(pi), -sin(pi), 0.45+0.55],
+        h = np.matrix([[1,0,0,-1.147+0.22+0.346],
+                    [0,cos(pi), -sin(pi), 0.567+0.415+0.02+0.075],
                     [0,sin(pi), cos(pi),0],
                     [0,0,0,1]])
     elif traySide == 'r':
-        h = np.matrix([[1,0,0,0.5],
-                    [0,cos(pi), -sin(pi), -0.5-0.4],
-                    [0,sin(pi), cos(pi),0],
+        h = np.matrix([[cos(pi),0,sin(pi),0.22+0.346+0.192],
+                    [0,1, 0, -0.49-0.555],
+                    [-sin(pi),0, cos(pi),0],
                     [0,0,0,1]])
     return h
