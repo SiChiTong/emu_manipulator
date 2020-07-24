@@ -1,4 +1,4 @@
-JoinState initialState
-JoinState goalState
+sensor_msgs/JointState initialState
+sensor_msgs/JointState goalState
 ---
-JointTrajectory trajectory
+trajectory_msgs/JointTrajectory trajectory

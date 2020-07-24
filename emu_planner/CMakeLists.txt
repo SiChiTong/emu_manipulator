@@ -8,24 +8,28 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs
   sensor_msgs
   message_generation
-  emu_planner
 )
 
-#add_service_files(
-#  FILES 
-#  EmuPlanner.srv
-#  )
+add_service_files(
+  FILES 
+  EmuPlanner.srv
+)
 
-#generate_messages(
-#  DEPENDENCIES
-#  std_msgs
-#  trajectory_msgs
-#  sensor_msgs
-#  geometry_msgs
-#  emu_planner
-#)
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  trajectory_msgs
+  sensor_msgs
+  geometry_msgs
+)
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS message_runtime
+)
+
+catkin_install_python(PROGRAMS scripts/planner.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   PATTERN "setup_assistant.launch" EXCLUDE)
