@@ -3,5 +3,4 @@
     <node name="core" pkg="emu_core" type="core.py"/>
     <include file = "$(find emu_planner)/launch/planner.launch"/>
     <node name="scene_gen" pkg="emu_planner" type="module_scene.py"/>
-    <!-- <node name="plan" pkg="emu_core" type="core.py"/> -->
 </launch>

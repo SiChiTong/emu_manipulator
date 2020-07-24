@@ -1,7 +1,29 @@
 cmake_minimum_required(VERSION 3.1.3)
 project(emu_planner)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  trajectory_msgs
+  sensor_msgs
+  message_generation
+  emu_planner
+)
+
+#add_service_files(
+#  FILES 
+#  EmuPlanner.srv
+#  )
+
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#  trajectory_msgs
+#  sensor_msgs
+#  geometry_msgs
+#  emu_planner
+#)
 
 catkin_package()
 

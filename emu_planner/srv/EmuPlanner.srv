@@ -1,0 +1,4 @@
+JoinState initialState
+JoinState goalState
+---
+JointTrajectory trajectory

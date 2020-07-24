@@ -16,13 +16,6 @@ from std_msgs.msg import String, Float64, Float32, Header
 from geometry_msgs.msg import Twist, PoseArray, PoseStamped, Pose
 from sensor_msgs.msg import JointState,Image
 
-#moveit modules
-import moveit_commander
-from moveit_msgs.msg import RobotState
-import moveit_msgs.srv
-from moveit_commander.conversions import pose_to_list
-import moveit_mod
-
 rospack = rospkg.RosPack()
 this_pkg = rospack.get_path('emu_core')
 share_pkg = rospack.get_path('emu_share')
@@ -32,23 +25,19 @@ import pyemu
 
 
 rospy.init_node('core')
-moveit_commander.roscpp_initialize(sys.argv)
 
 class Core:
 	def __init__(self, _port = '/dev/ttyTHS1'):
 		self.preconfig_pose = {'home': [0, 0, pi/2, pi/2, 0, -pi/4], 
-			'bin_snap': [0, 1.2, -0.02, pi/2, 0, 0], 
-			'tray_left_1': [pi/2, 0.09, 0.1503, (pi/2)+0.2, 0, 0],
-			'tray_left_2': [pi/2, 0.09, 0.1503, pi/2, 0, 0],
-			'tray_left_3': [pi/2, 0.09, 0.1503, (pi/2)-0.2-0.05, 0, 0],
-			'tray_right_1': [-pi/2, 0.09, 0.1503, (pi/2)+0.2, 0, 0],
-			'tray_right_2': [-pi/2, 0.09, 0.1503, pi/2, 0, 0],
-			'tray_right_3': [-pi/2, 0.09, 0.1503, (pi/2)-0.2-0.05, 0, 0],
+			'bin_snap': [0, 1.2, -0.05, pi/2-0.05, 0, 0], 
+			'tray_left_1': [pi/2, 0.09, 0.1503, 1.6, 0, 0],
+			'tray_left_2': [pi/2, 0.09, 0.1503, 1.45, 0, 0],
+			'tray_left_3': [pi/2, 0.09, 0.1503, 1.25, 0, 0],
+			'tray_right_1': [-pi/2, 0.09, 0.1503, 1.7, 0, 0],
+			'tray_right_2': [-pi/2, 0.09, 0.1503, 1.5, 0, 0],
+			'tray_right_3': [-pi/2, 0.09, 0.1503, 1.2, 0, 0],
 			'zero': [0, 0, 0, 0, 0, 0]}
 		self.lock = 0
-		self.commander = moveit_commander.RobotCommander()
-		self.planner = moveit_commander.MoveGroupCommander('arm')
-		self.vision = pyemu.Vision(debug = False)
 		self.port = _port
 		self.emulator = pyemu.Emuart(self.port)
 		self.kin_solver = pyemu.EmuRobot()
@@ -62,6 +51,7 @@ class Core:
 
 		self.__initPublisher()
 		self.__initSubscriber()
+		# self.__initVision()
 
 		
 	def __initVison(self):
@@ -80,8 +70,6 @@ class Core:
 		rospy.Subscriber('emu/jog/cartesian', Twist, self.cartesianJogCallback)
 		rospy.Subscriber('emu/command', String, self.__execute)
 	
-	# def initVison(self):
-	# 	self.vision = pyemu.Vision(debug = False)
 	def pickTrashCfg(self,trashMsgList):
 		listCfg=[]
 		for trashMsg in trashMsgList.poses :
@@ -95,26 +83,6 @@ class Core:
 			trashCfg = self.kin_solver.computeIK(tf = Hi,q_now=[0, 0, pi/2, pi/2, 0, pi/4], method = 'least_dist')
 			listCfg.append(trashCfg)
 		return listCfg
-
-	def plan(self, start_state, goal_state):
-		initial_joint_state = JointState()
-		initial_joint_state.header = Header()
-		initial_joint_state.header.stamp = rospy.Time.now()
-		initial_joint_state.name = self.joint_msg.name
-		initial_joint_state.position = start_state
-		robot_initial_state = RobotState()
-		robot_initial_state.joint_state = initial_joint_state
-		self.planner.set_start_state(robot_initial_state)
-		path = self.planner.plan(goal_state)
-		p,v,t = [],[],[]
-		lt = 0
-		for point in path.joint_trajectory.points:
-			p.append(point.positions)
-			v.append(point.velocities)
-			t_now = point.time_from_start.secs+(1e-9*point.time_from_start.nsecs)
-			t.append(t_now-lt)
-			lt = t_now
-		return p,v,t
 
 
 	def log(self, text, msg_type = None):
@@ -135,13 +103,15 @@ class Core:
 	def getStates(self):
 		return self.joint_msg.position
 
-	def notMoving(self, last_pose, tol):
+	def notMoving(self, start_pose, goal_pose, tol):
 		pose_now = self.getStates()
-		self.log(pose_now)
 		d = [0,0,0,0,0,0]
+		dtm = [0,0,0,0,0,0]
 		for i in range(0,6):
-			d[i] = pose_now[i] - last_pose[i]
-		if sum(d) < tol:
+			dtm[i] = abs(abs(goal_pose[i]) - abs(start_pose[i]))
+			d[i] = abs(abs(pose_now[i]) - abs(start_pose[i]))
+		print (sum(d), sum(dtm))
+		if sum(d) < tol*sum(dtm):
 			return 1
 		else:
 			return 0
@@ -163,17 +133,19 @@ class Core:
 		else:
 			rospy.logdebug('Return: '+str(ret))
 
-	def moveTo(self, pose, t):
-		self.lock = 1
-		time.sleep(0.1)
+	def moveTo(self, pose, t, timeout = 60):
+		print ('Starting to move to' +  str(pose))
+		s_pose = self.getStates()
 		self.emulator.moveAbsolute('all', pose, t)
-		self.lock = 0
+		start_time = time.time()
+		while self.notMoving(s_pose, pose, 0.05):
+			time.sleep(0.2)
+			self.log('1')
+			self.emulator.moveAbsolute('all', pose, t)
+		return 1
   
 	def moveOne(self, joint, goal, t):
-		self.lock = 1
-		time.sleep(0.1)
 		self.emulator.moveAbsolute(joint, goal, t)
-		self.lock = 0
 	
 	def moveDelay(self, last_pose, num_check, t, last_cmd):
 		for _ in range(0, num_check):
@@ -308,14 +280,13 @@ class Core:
 	def publishJointStates(self):
 		while 1:
 			if not self.lock:
-				joint_states = self.emulator.requestJointStates('simple')
+				joint_states = self.emulator.requestJointStates()
 				if not joint_states == -1:
 					joint_states = joint_states[0]
 					now = rospy.get_rostime()
 					self.joint_msg.header.stamp = now
 					self.joint_msg.position = joint_states
 					self.joint_states_publisher.publish(self.joint_msg)
-					self.joint_rate.sleep()
 
 	def cartesianJogCallback(self, s_twist):
 		self.lock = 1

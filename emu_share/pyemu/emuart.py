@@ -151,14 +151,8 @@ class Emuart:
             self.write(60+jointNum, singleTo4(goal)+singleTo4(duration))
 
             
-    def requestJointStates(self, _type = 'simple'):
-        if _type is 'simple':
-            self.write(0x0C, [])
-        elif _type is 'full':
-            self.write(0x0D, [])
-        time.sleep(0.01)
-        d = self.read()
-        return d
+    def requestJointStates(self):
+        return self.read()
     
     def setActuator(self, jointNum, state):
         self.write(30+jointNum, [state])
