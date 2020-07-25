@@ -168,7 +168,7 @@ class Emuart:
         data = []
         for i in viapoints:
             data = data + singleTo4(floatToBin(i))
-        print (data, len(data))
+        # print (data, len(data))
         self.write(82, data)
         
 

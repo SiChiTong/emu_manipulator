@@ -12,6 +12,7 @@ import copy
 import rospkg
 import rospy
 
+from emu_planner.srv import *
 from std_msgs.msg import String, Float64, Float32, Header
 from geometry_msgs.msg import Twist, PoseArray, PoseStamped, Pose
 from sensor_msgs.msg import JointState,Image
@@ -43,7 +44,6 @@ class Core:
 		self.kin_solver = pyemu.EmuRobot()
 		while not self.emulator.established():
 			pass
-
 		self.joint_rate = rospy.Rate(5)
 		self.joint_msg = JointState()
 		self.joint_msg.header.frame_id = "base_link"
@@ -56,6 +56,7 @@ class Core:
 		
 	def __initVison(self):
 		self.vision = pyemu.Vision(debug = False)
+		self.log('emuVision initialized successfully.')
 
 	def __initPublisher(self):
 		self.emu_log = rospy.Publisher('emu/log', String, queue_size = 20)
@@ -84,7 +85,6 @@ class Core:
 			listCfg.append(trashCfg)
 		return listCfg
 
-
 	def log(self, text, msg_type = None):
 		text = str(text)
 		msg = String()
@@ -104,18 +104,18 @@ class Core:
 		return self.joint_msg.position
 
 	def notMoving(self, start_pose, goal_pose, tol, joint = None):
-		if len(start_pose) == 6:
+		if type(start_pose) == list:
 			pose_now = self.getStates()
-			d = [0]*6
-			dtm = [0]*6
+			d = [0,0,0,0,0,0]
+			dtm = [0,0,0,0,0,0]
 			for i in range(0,6):
 				dtm[i] = abs(abs(goal_pose[i]) - abs(start_pose[i]))
 				d[i] = abs(abs(pose_now[i]) - abs(start_pose[i]))
 			return 1 if sum(d) < tol*sum(dtm) else 0
-		elif len(start_pose) == 1:
+		else:
 			pose_now = self.getStates()[joint-1]
-			d = abs(abs(goal_pose) - abs(start_pose))
-			dtm = abs(abs(pose_now) - abs(start_pose))
+			dtm = abs(abs(goal_pose) - abs(start_pose))
+			d = abs(abs(pose_now) - abs(start_pose))
 			return 1 if d < tol*dtm else 0
 	
 	def __execute(self, cmd):
@@ -128,43 +128,90 @@ class Core:
 		except AttributeError:
 			exec(cmd_static)
 		except Exception as e:
-			print (e)
-			rospy.logerr(e)
+			self.log('%s'%e, 'error')
 		if ret is None:
 				pass
 		else:
-			rospy.logdebug('Return: '+str(ret))
+			self.log('Return: '+str(ret))
 
-	def moveTo(self, pose, t, timeout = 60):
-		print ('Starting to move to' +  str(pose))
+	def moveOne(self, joint, goal, t, relative = 0, blocking = 0):
+		self.log('Moving '+str(joint)+' to ' +  str(goal))
+		s_pose = self.getStates()[joint-1]
+		if relative:
+			self.emulator.moveAbsolute(joint, goal, t)
+		else:
+			self.emulator.moveRelative(joint, goal, t)
+		while self.notMoving(s_pose, goal, 0.02, joint):
+			time.sleep(0.2)
+			self.log('Not moving..')
+			if relative:
+				self.emulator.moveAbsolute(joint, goal, t)
+			else:
+				self.emulator.moveRelative(joint, goal, t)
+		if blocking: time.sleep(t)
+		return 1
+
+	def moveTo(self, pose, t, relative = 0, blocking = 0):
+		self.log('Moving to ' +  str(pose))
 		s_pose = self.getStates()
-		self.emulator.moveAbsolute('all', pose, t)
-		start_time = time.time()
+		if relative:
+			self.emulator.moveRelative('all', pose, t)
+		else:
+			self.emulator.moveAbsolute('all', pose, t)
 		while self.notMoving(s_pose, pose, 0.05):
 			time.sleep(0.2)
-			self.log('1')
-			self.emulator.moveAbsolute('all', pose, t)
+			self.log('Not moving..')
+			if relative:
+				self.emulator.moveRelative('all', pose, t)
+			else:
+				self.emulator.moveAbsolute('all', pose, t)
+		if blocking: time.sleep(t)
 		return 1
-  
-	def moveOne(self, joint, goal, t):
-		print ('Starting to move '+str(joint)+' to ' +  str(goal))
-		s_pose = self.getStates()[joint-1]
-		self.emulator.moveAbsolute(joint, goal, t)
-		while self.notMoving(s_pose, goal, 0.05):
+	
+	def plan(self, initialState, goalState):
+		self.log('Waiting for planner service...')
+		rospy.wait_for_service('emu_planner')
+		try:
+			planner = rospy.ServiceProxy('emu_planner', EmuPlanner)
+			resp = planner(initialState, goalState)
+			return resp.trajectory
+		except rospy.ServiceException as e:
+			self.log("Service call failed: %s"%e)
+
+	def executeTrajectory(self, joint_trajectory):
+		p,v,t = [[],[],[],[],[],[]],[[],[],[],[],[],[]],[]
+		lt = 0
+		first_vias = joint_trajectory.points[1].positions
+		# tend = 
+		for num,point in enumerate(joint_trajectory.points[1:len(joint_trajectory.points)]):
+			# print (point.positions)
+			for i in range(6):
+				# print (point.positions[i])
+				p[i].append(point.positions[i])
+				v[i].append(point.velocities[i])
+			t_now = point.time_from_start.secs+(1e-9*point.time_from_start.nsecs)
+			t.append(t_now-lt)
+			lt = t_now
+		self.log('Trajectory vector: '+str(p)+' '+str(v)+' '+str(t))
+		self.emulator.sendViaPoints(p, v, t)
+		s_pose = self.getStates()
+		while self.notMoving(s_pose, first_vias, 0.02):
 			time.sleep(0.2)
-			self.log('1')
-			self.emulator.moveAbsolute(joint, goal, t)
+			self.log('Not moving..')
+			self.emulator.sendViaPoints(p, v, t)
+		# if blocking: time.sleep(t)
 		return 1
-  
+
 	def run(self, script):
 		script_path = this_pkg+'/scripts/'+script
+		emu.log('Running script at '+script_path)
 		script_in = open(script_path)
 		data = script_in.read()
 		script_in.close()
 		try:
 			exec(data)
 		except Exception as e:
-			rospy.logerr('Wrong Input: %s'%e)
+			self.log('Wrong Input: %s'%e, 'error')
 
 
 	def publishJointStates(self):
@@ -183,7 +230,7 @@ class Core:
 		t_ang = s_twist.angular
 		t_lin = s_twist.linear
 		twist = [t_ang.x, t_ang.y, t_ang.z, t_lin.x, t_lin.y, t_lin.z]
-		qk = self.joint_msg.position
+		qk = self.getStates()
 		dq = []
 		if not qk == []:
 			dq =  list(np.array(self.kin_solver.getCartesianJog(np.array(qk), np.array(twist), 6)).reshape(6))
@@ -194,25 +241,25 @@ class Core:
 		self.log('Input twist: '+str(twist))
 		time.sleep(0.05)
 		self.log('Output joint increment: '+str(dq))
-		self.emulator.moveRelative('all', dq, 5)
+		# self.emulator.moveRelative('all', dq, 5)
+		self.moveTo(dq, 3, 1)
 
 	def configJogCallback(self, state):
 		time.sleep(0.01)
-		position_array = [state.position[0], state.position[1], state.position[2], state.position[3], state.position[4], state.position[5]]
+		position_array = state.position
 		for n,i in enumerate(position_array):
 			if i == 0:
 				pass
 			else:
 				jointNum = n+1
 				increment = i	
-		print (jointNum, increment)
 		self.log('Input joint increments: '+str(position_array))
-		self.emulator.moveRelative(jointNum, increment, 3)
+		# self.emulator.moveRelative(jointNum, increment, 3)
+		self.moveOne(jointNum, increment, 3, 1)
 
 if __name__ == "__main__":
 	emu = Core(vision = 0)
 	emu.log('emu core initialized successfully', None)
-	rospy.logdebug('emu core initialized successfully')
 	joint_pub_thread = threading.Thread(target=emu.publishJointStates, daemon = 1)
 	joint_pub_thread.start()
 	while not rospy.is_shutdown():
