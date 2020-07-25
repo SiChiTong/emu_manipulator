@@ -1,6 +1,5 @@
 controller_list:
   - name: fake_arm_controller
-    type: via points
     joints:
       - joint_1
       - joint_2
@@ -8,6 +7,9 @@ controller_list:
       - joint_4
       - joint_5
       - joint_6
+  - name: fake_tool_controller
+    joints:
+      - sliding_jaw_joint
 initial:  # Define initial robot poses.
   - group: arm
     pose: home_pose

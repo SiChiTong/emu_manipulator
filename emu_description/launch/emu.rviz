@@ -74,6 +74,10 @@ Visualization Manager:
           Show Axes: true
           Show Trail: false
           Value: true
+        grasp_frame:
+          Alpha: 1
+          Show Axes: true
+          Show Trail: false
         link_1:
           Alpha: 1
           Show Axes: false
@@ -104,10 +108,19 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        tool:
+        sliding_jaw:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        suction_frame:
           Alpha: 1
           Show Axes: true
-          Show Trail: true
+          Show Trail: false
+        tool_base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
           Value: true
       Name: RobotModel
       Robot Description: robot_description
@@ -143,7 +156,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.383202075958252
+      Distance: 1.9870352745056152
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -158,10 +171,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5903992056846619
+      Pitch: 0.6753991842269897
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.0953973531723022
+      Yaw: 0.7903971672058105
     Saved: ~
 Window Geometry:
   Displays:

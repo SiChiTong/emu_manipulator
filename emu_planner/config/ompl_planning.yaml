@@ -34,7 +34,7 @@ planner_configs:
   RRTstar:
     type: geometric::RRTstar
     range: 0.0  # Max motion added to tree. ==> maxDistance_ default: 0.0, if 0.0, set on setup()
-    goal_bias: 0.5  # When close to goal select goal, with this probability? default: 0.05
+    goal_bias: 0.3  # When close to goal select goal, with this probability? default: 0.05
     delay_collision_checking: 1  # Stop collision checking as soon as C-free parent found. default 1
     longest_valid_segment_fraction: 0.15
   TRRT:
@@ -149,3 +149,29 @@ arm:
     - SPARStwo
   projection_evaluator: joints(joint_1,joint_2)
   longest_valid_segment_fraction: 0.005
+tool:
+  default_planner_config: None
+  planner_configs:
+    - SBL
+    - EST
+    - LBKPIECE
+    - BKPIECE
+    - KPIECE
+    - RRT
+    - RRTConnect
+    - RRTstar
+    - TRRT
+    - PRM
+    - PRMstar
+    - FMT
+    - BFMT
+    - PDST
+    - STRIDE
+    - BiTRRT
+    - LBTRRT
+    - BiEST
+    - ProjEST
+    - LazyPRM
+    - LazyPRMstar
+    - SPARS
+    - SPARStwo

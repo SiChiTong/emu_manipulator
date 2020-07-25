@@ -172,7 +172,7 @@
         </visual>
     </link>
 
-    <link name="tool">
+    <link name="tool_base">
 		<inertial>
 			<origin xyz = "-0.00016738 0 0.04413320"/>
 			<mass value = "0.43864195"/>
@@ -181,12 +181,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="package://emu_description/meshes/tool_joulin.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/tool_static.STL" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="package://emu_description/meshes/tool_joulin.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/tool_static.STL" scale="1 1 1"/>
             </geometry>
             <material name="Grey">
                 <color rgba="0.7 0.7 0.7 1"/>
@@ -194,6 +194,27 @@
         </visual>
     </link>
 
+    
+    <link name="sliding_jaw">
+        <collision> 
+			<origin xyz="0 0 0"/> 
+			<geometry> 
+				<mesh filename="package://emu_description/meshes/tool_sliding.STL" scale="1 1 1"/>
+			</geometry> 
+		</collision>
+        <visual>
+            <geometry>
+                <mesh filename="package://emu_description/meshes/tool_sliding.STL" scale="1 1 1"/>
+            </geometry>
+            <material name="Grey">
+                <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+        </visual>
+    </link>
+
+    <link name="grasp_frame"/>
+
+    <link name="suction_frame"/>
 <!--=================== JOINTS ========================-->
 
     <!-- <joint name="world_to_base" type="fixed">
@@ -256,10 +277,32 @@
         <dynamics damping="0"/>
     </joint>
 
-    <joint name="joint_6_to_tool" type="fixed">
+    <joint name="joint_6_to_tool_base" type="fixed">
         <parent link="link_6"/>
-        <child link="tool"/>
-        <origin rpy="0 0 0" xyz = "0 0 0.0805"/>
+        <child link="tool_base"/>
+        <origin rpy="0 0 0" xyz = "0 0 0"/>
+    </joint>
+
+    <joint name="sliding_jaw_joint" type="prismatic">
+        <parent link="tool_base"/>
+        <child link="sliding_jaw"/>
+        <axis xyz = "0 0 1"/>
+        <limit lower = "0" upper = "0.0715" effort = "10" velocity = "5" acceleration = "10"/>
+        <origin rpy="1.57075 0 0" xyz = "0 0.0288 0.145"/>
+    </joint>
+
+    <joint name="grasp_frame_transform" type="fixed">
+        <parent link="tool_base"/>
+        <child link="grasp_frame"/>
+        <axis xyz = "0 0 1"/>
+        <origin rpy="0 0 0" xyz = "0 0 0.145"/>
+    </joint>
+
+    <joint name="suction_frame_transform" type="fixed">
+        <parent link="tool_base"/>
+        <child link="suction_frame"/>
+        <axis xyz = "0 0 1"/>
+        <origin rpy="0 0 0" xyz = "0 -0.0881 0.1852"/>
     </joint>
 
     <transmission name="tran1">
