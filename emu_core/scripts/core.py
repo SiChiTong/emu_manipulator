@@ -74,14 +74,8 @@ class Core:
 	def pickTrashCfg(self,trashMsgList):
 		listCfg=[]
 		for trashMsg in trashMsgList.poses :
-			Hi = np.matrix(np.eye(4))
-			x = trashMsg.position.x
-			y = trashMsg.position.y
-			z = 0.3
-			r = pyemu.EmuRobot.quat2rotm([trashMsg.orientation.x,trashMsg.orientation.y,trashMsg.orientation.z,trashMsg.orientation.w])
-			Hi[0:3,0:3]=r
-			Hi[0:3,3]=np.matrix([[x],[y],[z]])
-			trashCfg = self.kin_solver.computeIK(tf = Hi,q_now=[0, 0, pi/2, pi/2, 0, pi/4], method = 'least_dist')
+			
+			trashCfg = self.kin_solver.computeIK(pose = trashMsg,q_now=[0, 0, pi/2, pi/2, 0, pi/4], method = 'least_dist')
 			listCfg.append(trashCfg)
 		return listCfg
 
