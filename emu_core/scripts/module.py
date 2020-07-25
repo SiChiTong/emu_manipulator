@@ -1,5 +1,19 @@
 self.log('+++ Initializing Module Script +++')
 
+# test_pose = Pose()
+# test_pose.position.x = 0.5
+# test_pose.position.y = -0.5
+# test_pose.position.z = 0.3
+
+# test_pose.orientation.x = 0.7071
+# test_pose.orientation.y = 0.7071
+# test_pose.orientation.z = 0
+# test_pose.orientation.w = 0
+
+# a = self.kin_solver.computeIK(test_pose, 'least_dist', self.getStates())
+# self.log(self.isValid(a))
+# self.moveTo(a,12, blocking = 1)
+
 # i = JointState()
 # i.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
 # i.position = self.getStates()
@@ -11,11 +25,26 @@ self.log('+++ Initializing Module Script +++')
 # a = self.plan(i, g)
 # self.executeTrajectory(a)
 
-# self.moveTo(self.preconfig_pose['bin_snap'],15, blocking = 1)
-# time.sleep(1)
+self.moveTo(self.preconfig_pose['bin_snap'],12, blocking = 1)
+time.sleep(0.5)
+# self.vision.snapBinImg()
+# binMsg = self.vision.getBin()
+# self.bin_pose_publisher.publish(binMsg)
+# test_1 = Pose()
+# test_1.position.x = 0.4
+# test_1.position.y = binMsg.velocity[0]
+# test_1.position.z = binMsg.position[0]+0.1*sin(0.5236)
+# test_1.orientation.x = 0
+# test_1.orientation.y = -0.258
+# test_1.orientation.z = 0
+# test_1.orientation.w = 0.966
+# a = self.kin_solver.computeIK(test_1, 'least_dist', self.getStates())
+# self.log(np.array(a)*(180/pi))
+# # self.moveTo(a,12, blocking = 1)
+# time.sleep(0.5)
 # self.moveTo(self.preconfig_pose['tray_left_1'],12, blocking = 1)
-# time.sleep(1)
-# self.moveTo(self.preconfig_pose['home'],12, blocking = 1)
+
+self.moveTo(self.preconfig_pose['home'],10, blocking = 1)
 # self.log('Moving done!')
 
 # self.log('Hello There!')

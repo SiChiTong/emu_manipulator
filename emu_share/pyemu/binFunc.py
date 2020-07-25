@@ -63,7 +63,7 @@ def selectPoint(newimg,name):
             np.savetxt(config_path+'{}.txt'.format(name), x, delimiter=',') 
             # return(x1,y1,x2,y2,x3,y3,x4,y4)
             return True
-def applyPerspective(img,w,h,name,mode=0,):
+def applyPerspective(img,w,h,name,mode=0):
     temp_rect = np.zeros((4,2), dtype = "float32")
     if mode == 0:
         
@@ -170,8 +170,8 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
         # color segment with hsv
         mask = colorSegment(img,hsvList[ind])
         mask = cv2.morphologyEx(mask,cv2.MORPH_OPEN, np.ones((7,7),np.uint8))
-        cv2.imshow('clrseg',mask)
-        cv2.waitKey()
+        # cv2.imshow('clrseg',mask)
+        # cv2.waitKey()
         # get bin contours
         _,contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
@@ -229,8 +229,8 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
     for b in range(3):
         sortedBin[b].setPosition(b)
         print(sortedBin[b],'\n')
-    cv2.imshow('detectBin',img)
-    cv2.waitKey(0)
+    # cv2.imshow('detectBin',img)
+    # cv2.waitKey(0)
     return sortedBin
 def transFrameBinToBase(x,y,z,scaleY):
     bx = 0.22+0.346

@@ -38,19 +38,19 @@ def setBin(scene, order = ['blue', 'yellow', 'green'], z = [0, 0, 0], y = [0.3, 
     left_bin_pose = geometry_msgs.msg.Pose()
     left_bin_pose.position.x = 0.5
     left_bin_pose.position.y = y[0]
-    left_bin_pose.position.z = z[0]
+    left_bin_pose.position.z = z[0]-0.46
     left_bin_pose.orientation.w = 1
 
     mid_bin_pose = geometry_msgs.msg.Pose()
     mid_bin_pose.position.x = 0.5
     mid_bin_pose.position.y = y[1]
-    mid_bin_pose.position.z = z[1]
+    mid_bin_pose.position.z = z[1]-0.46
     mid_bin_pose.orientation.w = 1
 
     right_bin_pose = geometry_msgs.msg.Pose()
     right_bin_pose.position.x = 0.5
     right_bin_pose.position.y = y[2]
-    right_bin_pose.position.z = z[2]
+    right_bin_pose.position.z = z[2]-0.46
     right_bin_pose.orientation.w = 1
     
     poses = [left_bin_pose, mid_bin_pose, right_bin_pose]
@@ -115,7 +115,7 @@ base_pose.orientation.w = 1
 
 sv.addMesh('work_plane', base_pose, package_path+'/meshes/work_plane.STL')
 sv.setColor('work_plane', 0.9, 0.9, 0.9, 1)
-setBin(sv, z = [0.3, 0.1, 0.2])
+# setBin(sv, z = [0.3, 0.1, 0.2])
 
 sv.sendColors()
 

@@ -38,8 +38,8 @@ class EmuRobot:
 
     def computeIK(self, pose, method = None, q_now = [0, 0, 0, 0, 0, 0]):
         tf = np.matrix(np.eye(4))
-        x,y,z = pose.position.x,pose.position.y,0.3
-        r = pyemu.EmuRobot.quat2rotm([pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w])
+        x,y,z = pose.position.x,pose.position.y,pose.position.z
+        r = EmuRobot.quat2rotm([pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w])
         tf[0:3,0:3] = r
         tf[0:3,3]=np.matrix([[x],[y],[z]])
 
@@ -81,9 +81,6 @@ class EmuRobot:
                 else:
                     q[3] = 0
                     q[5] = 0
-                q[3] = 0
-                q[4] = 0
-                q[5] = 0
             except:
                 nan = np.nan
                 q = np.matrix([nan, nan, nan, nan, nan, nan]).T
@@ -102,11 +99,15 @@ class EmuRobot:
                 p_q[:,i]=nanm
         lastq = p_q[:,~np.all(np.isnan(p_q), axis=0)]
         if lastq is not None:
-            lastq = lastq.reshape(len(lastq[0]),6)
+            lastq = lastq.reshape(6, len(lastq[0]))
+            lastq = lastq.T
             
             if method == 'least_dist':
-                dist = abs(lastq-q_now)
-                cost = np.sum(dist, axis = 1)
+                dist = abs(lastq-np.array(q_now))
+                dist[0] = dist[0]*1.5
+                dist[1] = dist[1]*1.7
+                dist[2] = dist[2]*1.2
+                cost = np.sum(dist, axis = 0)
                 return list(lastq[np.array(list(cost).index(min(cost)))])
             else:
                 return lastq
@@ -152,9 +153,6 @@ class EmuRobot:
                 else:
                     q[3] = 0
                     q[5] = 0
-                q[3] = 0
-                q[4] = 0
-                q[5] = 0
             except:
                 nan = np.nan
                 q = np.matrix([nan, nan, nan, nan, nan, nan]).T

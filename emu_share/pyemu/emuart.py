@@ -17,7 +17,6 @@ def floatToBin(data):
 def singleTo4(data):
     return [(data>>24)&0xFF, (data>>16)&0xFF, (data>>8)&0xFF, data&0xFF]
 
-q_fake = [0, 0, 0]
 
 class Emuart:
     def __init__(self, port, baudrate = 1000000, device = "Emulator"):
@@ -77,7 +76,6 @@ class Emuart:
                 if expectedCrc32 != checksum: 
                     return -1 #if the data is wrong
                 else: 
-                    self.ser.reset_input_buffer()
                     return command, data #the data is right
             else:
                 self.ser.read() #clear the buffer until it pass if statement
@@ -121,8 +119,6 @@ class Emuart:
         crcSep = [(crc32>>24)&0xFF, (crc32>>16)&0xFF, (crc32>>8)&0xFF, crc32&0xFF]
         data = header+data+crcSep
         self.ser.write(bytes(data))
-        time.sleep(0.2)
-        self.ser.reset_output_buffer()
 
     def writeOls(self, jointNum, speed):
         speed = floatToBin(speed)

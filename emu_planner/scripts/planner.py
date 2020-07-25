@@ -71,7 +71,7 @@ def planner_handle(request):
 
 def planner_server():
 	rospy.init_node('emu_sampling_planner', anonymous=True)
-	s = rospy.Service('emu_planner', EmuPlanner,planner_handle)
+	s = rospy.Service('emu_planner_server', EmuPlanner,planner_handle)
 	print ('Planner is readey to plan.')
 	rospy.spin()
 

@@ -11,7 +11,7 @@ import sys, time
 import copy
 import rospkg
 import rospy
-
+ 
 from emu_planner.srv import *
 from std_msgs.msg import String, Float64, Float32, Header
 from geometry_msgs.msg import Twist, PoseArray, PoseStamped, Pose
@@ -20,15 +20,17 @@ from sensor_msgs.msg import JointState,Image
 rospack = rospkg.RosPack()
 this_pkg = rospack.get_path('emu_core')
 share_pkg = rospack.get_path('emu_share')
+planner_pkg = rospack.get_path('emu_planner')
 sys.path.append(share_pkg)
-
+sys.path.append(planner_pkg)
 import pyemu
+from scripts.collisionCheck import StateValidity
 
 
 rospy.init_node('core')
 
 class Core:
-	def __init__(self, _port = '/dev/ttyTHS1', vision = 0):
+	def __init__(self, _port = '/dev/ttyTHS1'):
 		self.preconfig_pose = {'home': [0, 0, pi/2, pi/2, 0, -pi/4], 
 			'bin_snap': [0, 1.2, -0.05, pi/2-0.05, 0, 0], 
 			'tray_left_1': [pi/2, 0.09, 0.1503, 1.6, 0, 0],
@@ -42,6 +44,7 @@ class Core:
 		self.port = _port
 		self.emulator = pyemu.Emuart(self.port)
 		self.kin_solver = pyemu.EmuRobot()
+		self.sv = StateValidity()
 		while not self.emulator.established():
 			pass
 		self.joint_rate = rospy.Rate(5)
@@ -51,11 +54,7 @@ class Core:
 
 		self.__initPublisher()
 		self.__initSubscriber()
-		if vision: self.__initVision()
-
-		
-	def __initVison(self):
-		self.vision = pyemu.Vision(debug = False)
+		# self.vision = pyemu.Vision(debug = False)
 		self.log('emuVision initialized successfully.')
 
 	def __initPublisher(self):
@@ -71,6 +70,9 @@ class Core:
 		rospy.Subscriber('emu/jog/cartesian', Twist, self.cartesianJogCallback)
 		rospy.Subscriber('emu/command', String, self.__execute)
 	
+	def isValid(self, pose):
+		return self.sv.checkCollision(pose)
+
 	def pickTrashCfg(self,trashMsgList):
 		listCfg=[]
 		for trashMsg in trashMsgList.poses :
@@ -105,6 +107,7 @@ class Core:
 			for i in range(0,6):
 				dtm[i] = abs(abs(goal_pose[i]) - abs(start_pose[i]))
 				d[i] = abs(abs(pose_now[i]) - abs(start_pose[i]))
+			print (d, dtm)
 			return 1 if sum(d) < tol*sum(dtm) else 0
 		else:
 			pose_now = self.getStates()[joint-1]
@@ -131,34 +134,44 @@ class Core:
 	def moveOne(self, joint, goal, t, relative = 0, blocking = 0):
 		self.log('Moving '+str(joint)+' to ' +  str(goal))
 		s_pose = self.getStates()[joint-1]
+		self.lock = 1
 		if relative:
 			self.emulator.moveAbsolute(joint, goal, t)
 		else:
 			self.emulator.moveRelative(joint, goal, t)
-		while self.notMoving(s_pose, goal, 0.02, joint):
-			time.sleep(0.2)
+		self.lock = 0
+		time.sleep(1)
+		while self.notMoving(s_pose, goal, 0.03, joint):
 			self.log('Not moving..')
+			self.lock = 1
 			if relative:
 				self.emulator.moveAbsolute(joint, goal, t)
 			else:
 				self.emulator.moveRelative(joint, goal, t)
+			self.lock = 0
+			time.sleep(1)
 		if blocking: time.sleep(t)
 		return 1
 
 	def moveTo(self, pose, t, relative = 0, blocking = 0):
 		self.log('Moving to ' +  str(pose))
 		s_pose = self.getStates()
+		self.lock = 1
 		if relative:
 			self.emulator.moveRelative('all', pose, t)
 		else:
 			self.emulator.moveAbsolute('all', pose, t)
-		while self.notMoving(s_pose, pose, 0.05):
-			time.sleep(0.2)
+		self.lock = 0
+		time.sleep(1)
+		while self.notMoving(s_pose, pose, 0.03):
 			self.log('Not moving..')
+			self.lock = 1
 			if relative:
 				self.emulator.moveRelative('all', pose, t)
 			else:
 				self.emulator.moveAbsolute('all', pose, t)
+			self.lock = 0
+			time.sleep(1)
 		if blocking: time.sleep(t)
 		return 1
 	
@@ -252,7 +265,7 @@ class Core:
 		self.moveOne(jointNum, increment, 3, 1)
 
 if __name__ == "__main__":
-	emu = Core(vision = 0)
+	emu = Core()
 	emu.log('emu core initialized successfully', None)
 	joint_pub_thread = threading.Thread(target=emu.publishJointStates, daemon = 1)
 	joint_pub_thread.start()
