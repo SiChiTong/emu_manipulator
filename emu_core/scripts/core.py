@@ -60,8 +60,8 @@ class Core:
 	def __initPublisher(self):
 		self.emu_log = rospy.Publisher('emu/log', String, queue_size = 20)
 		self.joint_states_publisher = rospy.Publisher('emu/joint_states', JointState, queue_size = 20)
-		self.bin_pose_publisher = rospy.Publisher('emu/vision/bin_poses',JointState,queue_size = 20)
-		self.trash_poses_publisher = rospy.Publisher('emu/vision/trash_poses', PoseArray, queue_size = 20)
+		self.bin_poses_publisher = rospy.Publisher('emu/vision/bin_poses',JointState,queue_size = 20, latch=True)
+		self.trash_poses_publisher = rospy.Publisher('emu/vision/trash_poses', PoseArray, queue_size = 20, latch=True)
 		self.left_tray_publisher = rospy.Publisher('emu/vision/left_tray', Image, queue_size = 0,latch=True)
 		self.right_tray_publisher = rospy.Publisher('/emu/vision/right_tray', Image, queue_size = 20,latch=True)
 

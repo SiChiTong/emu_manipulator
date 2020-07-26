@@ -98,7 +98,7 @@ class EmuRobot:
                 nanm = np.matrix([nan, nan, nan, nan, nan, nan])
                 p_q[:,i]=nanm
         lastq = p_q[:,~np.all(np.isnan(p_q), axis=0)]
-        if lastq is not None:
+        if type(lastq).__name__ is not 'NoneType':
             lastq = lastq.reshape(6, len(lastq[0]))
             lastq = lastq.T
             return lastq

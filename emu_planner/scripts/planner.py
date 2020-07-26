@@ -25,14 +25,14 @@ import moveit_mod
 
 from collisionCheck import StateValidity
 
-from emu_planner.srv import EmuPlanner, EmuPlannerResponse 
-
 #add share pyemu
 rospack = rospkg.RosPack()
 share_pkg = rospack.get_path('emu_share')
 sys.path.append(share_pkg)
 package_path = rospack.get_path('emu_planner')
 # import pyemu
+
+from emu_planner.srv import EmuPlanner, EmuPlannerResponse 
 
 moveit_commander.roscpp_initialize(sys.argv)
 
@@ -54,13 +54,12 @@ def planner_handle(request):
 	robot_initial_state.joint_state = request.initialState
 	ss.set_start_state(robot_initial_state)
 	path = ss.plan(request.goalState.position)
-	ss.execute()
 	return EmuPlannerResponse(path.joint_trajectory)
 
 def planner_server():
 	rospy.init_node('emu_sampling_planner', anonymous=True)
 	s = rospy.Service('emu_planner_server', EmuPlanner,planner_handle)
-	print ('Planner is readey to plan.')
+	print ('Planner is ready to plan.')
 	rospy.spin()
 
 
