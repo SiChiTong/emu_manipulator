@@ -36,15 +36,14 @@ class EmuRobot:
         else:
             return kinematics.mj(config, self.dh_param, self.rho)
 
-    def computeIK(self, pose):
+    def computeIK(self, pose, offset = (0,0,0)):
         tf = np.matrix(np.eye(4))
         x,y,z = pose.position.x,pose.position.y,pose.position.z
         r = EmuRobot.quat2rotm([pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w])
         tf[0:3,0:3] = r
         tf[0:3,3]=np.matrix([[x],[y],[z]])
-
         gr06 = tf[0:3, 0:3]
-        gw = tf[0:3,3]+gr06.T*np.matrix([0, 0, -self.Le]).T
+        gw = tf[0:3,3]+gr06.T*np.matrix([0+offset[0], 0+offset[1], -self.Le+offset[2]]).T
         x = gw[0]
         y = gw[1]
         z = gw[2]
@@ -106,10 +105,15 @@ class EmuRobot:
             return None
 
     def leastDist(self, soln, q_now, weight = [1.5, 1.7, 1.2, 0.8, 0.8, 0.8]):
-        dist = abs(soln-np.array(q_now))
-        for i in range(6):
-            dist[i] = dist[i]*weight[i]
-        cost = np.sum(dist, axis = 0)
+        dist = abs(np.array(soln)-np.array(q_now))
+        print (dist)
+        for u in dist:
+            print(u)
+            for i in range(6):
+                u[i] = u[i]*weight[i]
+        print (dist)
+        cost = np.sum(dist, axis = 1)
+        print (cost)
         return list(soln[np.array(list(cost).index(min(cost)))])
 
     def getCartesianJog(self, q_now, increment, numDof = 6):

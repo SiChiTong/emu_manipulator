@@ -36,19 +36,19 @@ rospy.init_node('modules_state_validator', anonymous=True)
 
 def setBin(scene, order = ['blue', 'yellow', 'green'], z = [0, 0, 0], y = [0.3, 0, -0.3]):
     left_bin_pose = geometry_msgs.msg.Pose()
-    left_bin_pose.position.x = 0.5
+    left_bin_pose.position.x = 0.5-0.06
     left_bin_pose.position.y = y[0]
     left_bin_pose.position.z = z[0]-0.46
     left_bin_pose.orientation.w = 1
 
     mid_bin_pose = geometry_msgs.msg.Pose()
-    mid_bin_pose.position.x = 0.5
+    mid_bin_pose.position.x = 0.5-0.06
     mid_bin_pose.position.y = y[1]
     mid_bin_pose.position.z = z[1]-0.46
     mid_bin_pose.orientation.w = 1
 
     right_bin_pose = geometry_msgs.msg.Pose()
-    right_bin_pose.position.x = 0.5
+    right_bin_pose.position.x = 0.5-0.06
     right_bin_pose.position.y = y[2]
     right_bin_pose.position.z = z[2]-0.46
     right_bin_pose.orientation.w = 1
@@ -101,7 +101,7 @@ sv = moveit_mod.PlanningSceneInterface("base_link")
 is_ready = (1, 0)
 
 def trashGenCb(pA):
-    print ('Adding Etrashes')
+    print ('Adding trashes')
     for num, pose in enumerate(pA.poses):
         gen_trash(sv, 'trash_{}'.format(num), pose)
     sv.sendColors()
@@ -112,6 +112,7 @@ def binGenCb(js):
     sv.sendColors()
 
 base_pose = Pose()
+base_pose.position.x = -0.06
 base_pose.orientation.w = 1
 
 sv.addMesh('work_plane', base_pose, package_path+'/meshes/work_plane.STL')

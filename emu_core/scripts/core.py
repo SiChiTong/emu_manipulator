@@ -71,7 +71,7 @@ class Core:
 		rospy.Subscriber('emu/command', String, self.__execute)
 	
 	def isValid(self, pose):
-		return self.sv.checkCollision(pose)
+		return self.sv.checkCollision(list(pose))
 
 	def pickTrashCfg(self,trashMsgList):
 		listCfg=[]
@@ -177,9 +177,9 @@ class Core:
 	
 	def plan(self, initialState, goalState):
 		self.log('Waiting for planner service...')
-		rospy.wait_for_service('emu_planner')
+		rospy.wait_for_service('emu_planner_server')
 		try:
-			planner = rospy.ServiceProxy('emu_planner', EmuPlanner)
+			planner = rospy.ServiceProxy('emu_planner_server', EmuPlanner)
 			resp = planner(initialState, goalState)
 			return resp.trajectory
 		except rospy.ServiceException as e:

@@ -2,7 +2,7 @@ self.log('+++ Initializing Module Script +++')
 
 binMsg = JointState()
 binMsg.name = ['green', 'blue', 'yellow']
-binMsg.position = [0.46, 0.56, 0.66]
+binMsg.position = [0.46, 0.46, 0.46]
 binMsg.velocity = [0.31, 0, -0.32]
 
 poseList = [[0.10599999999999998, 0.525, 11, -0.004222495939768292, 0.9999910852242827, -6.123179408479028e-17, -2.585533068524967e-19],
@@ -34,21 +34,53 @@ self.trash_poses_publisher.publish(trashMsg)
 # binGenCb(binMsg)
 # trashGenCb(trashMsg)
 
-test_pose = Pose()
-test_pose.position.x = 0.5
-test_pose.position.y = -0.5
-test_pose.position.z = 0.3
+def toBin(binMsg, binIdx, isSnack = 0):
+    pose = Pose()
+    pose.position.x = 0.45
+    pose.position.y = binMsg.velocity[binIdx]
+    pose.position.z = binMsg.position[binIdx]+(0.56-0.45)*sin(0.5236)
+    
+    if isSnack:
+        pose.orientation.x = 0.86727
+        pose.orientation.y = 3e-7
+        pose.orientation.z = 0.49783
+        pose.orientation.w = 2e-7
+    else:
+        if binIdx == 0:
+            pose.orientation.x = 0.24312
+            pose.orientation.y = 0.3325
+            pose.orientation.z = 0.9073
+            pose.orientation.w = -0.08874
+        elif binIdx == 1:
+            pose.position.x = 0.4
+            pose.position.y = binMsg.velocity[binIdx]
+            pose.position.z = binMsg.position[binIdx]+(0.56-0.4)*sin(0.5236)
+            pose.orientation.x = 0.2588
+            pose.orientation.y = 1e-7
+            pose.orientation.z = 0.9659
+            pose.orientation.w = 3e-7
+        elif binIdx == 2:
+            pose.orientation.x = 0.24312
+            pose.orientation.y = -0.3325
+            pose.orientation.z = 0.9073
+            pose.orientation.w = 0.08874
+    return pose
 
-test_pose.orientation.x = 0.7071
-test_pose.orientation.y = 0.7071
-test_pose.orientation.z = 0
-test_pose.orientation.w = 0
+BOTTLE_OFFSET = (0,0,-0.145)
+SNACK_OFFSET = (0, 0.0881, -0.185)
 
-a = self.kin_solver.computeIK(test_pose)
+a = self.kin_solver.computeIK(toBin(binMsg, 0, 0), offset = BOTTLE_OFFSET)
 self.log(a)
+vailid_path = []
 for i in a:
-    if self.isValid(a):
-
+    if self.isValid(i):
+        vailid_path.append(list(i))
+if vailid_path is []: 
+    self.log('No config found!')
+else:
+    self.log('Valid Path: '+str(vailid_path))
+    soln = self.kin_solver.leastDist(vailid_path, self.getStates())
+self.log("soln: "+str(soln))
 # self.moveTo(a,12, blocking = 1)
 
 i = JointState()
@@ -57,10 +89,10 @@ i.position = self.getStates()
 
 g = JointState()
 g.name = i.name
-g.position = [1, -pi/2, pi/2, 0,0,0]
+g.position = soln
 
 a = self.plan(i, g)
-# self.executeTrajectory(a)
+self.executeTrajectory(a)
 
 # self.moveTo(self.preconfig_pose['bin_snap'],12, blocking = 1)
 # time.sleep(0.5)

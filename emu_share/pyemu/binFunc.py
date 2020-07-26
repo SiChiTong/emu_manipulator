@@ -278,6 +278,7 @@ def getBinList(Cam,BinScaleWorld,BinScalePixel,frame,mode=0):
         f = transFrameBinToBase(x,y,z,binFrameHeight)
         if f[2,3]>=0.7:
             f[2,3]+=0.02
+        
         pts = (f[0,3],f[1,3],f[2,3])
         
         binList[i].setHoleRealPtsWorld(pts)
