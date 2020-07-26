@@ -50,23 +50,11 @@ sv = StateValidity()
 
 def planner_handle(request):
 	global ss
-	# request.initialState = JointState()
-	# request.initialState.header = Header()
-	# request.initialState.header.stamp = rospy.Time.now()
-	# request.initialState.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
-	# request.initialState.position = start_state
 	robot_initial_state = RobotState()
 	robot_initial_state.joint_state = request.initialState
 	ss.set_start_state(robot_initial_state)
 	path = ss.plan(request.goalState.position)
-	# p,v,t = [],[],[]
-	# lt = 0
-	# for point in path.joint_trajectory.points:
-	# 	p.append(point.positions)
-	# 	v.append(point.velocities)
-	# 	t_now = point.time_from_start.secs+(1e-9*point.time_from_start.nsecs)
-	# 	t.append(t_now-lt)
-	# 	lt = t_now
+	ss.execute()
 	return EmuPlannerResponse(path.joint_trajectory)
 
 def planner_server():

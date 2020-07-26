@@ -7,7 +7,7 @@ except:
 from scipy.spatial.transform import Rotation as R
 class EmuRobot:
     def __init__(self, tool_length = 0):
-        self.L1, self.L2, self.Le = 0.12596, 0.466, 0.121
+        self.L1, self.L2, self.Le = 0.12596, 0.466, 0.1852
         self.a1, self.a2, self.a3 = 0.30767, 0.400, 0.05 
         self.dh_param = np.array([[0, self.a1, self.L1, pi/2], [pi/2, 0, self.a2, 0], [0, 0, self.a3, pi/2], [0, self.L2, 0, -pi/2], [0, 0, 0, pi/2], [0, self.Le, 0, 0]])
         self.rho = [1]*6
@@ -36,7 +36,7 @@ class EmuRobot:
         else:
             return kinematics.mj(config, self.dh_param, self.rho)
 
-    def computeIK(self, pose, method = None, q_now = [0, 0, 0, 0, 0, 0]):
+    def computeIK(self, pose):
         tf = np.matrix(np.eye(4))
         x,y,z = pose.position.x,pose.position.y,pose.position.z
         r = EmuRobot.quat2rotm([pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w])
@@ -101,18 +101,15 @@ class EmuRobot:
         if lastq is not None:
             lastq = lastq.reshape(6, len(lastq[0]))
             lastq = lastq.T
-            
-            if method == 'least_dist':
-                dist = abs(lastq-np.array(q_now))
-                dist[0] = dist[0]*1.5
-                dist[1] = dist[1]*1.7
-                dist[2] = dist[2]*1.2
-                cost = np.sum(dist, axis = 0)
-                return list(lastq[np.array(list(cost).index(min(cost)))])
-            else:
-                return lastq
         else:
             return None
+
+    def leastDist(self, soln, q_now, weight = [1.5, 1.7, 1.2, 0.8, 0.8, 0.8]):
+        dist = abs(soln-np.array(q_now))
+        for i in range(6):
+            dist[i] = dist[i]*weight[i]
+        cost = np.sum(dist, axis = 0)
+        return list(lastq[np.array(list(cost).index(min(cost)))])
 
     def excomputeIK(self, tf, method = None, q_now = [0, 0, 0, 0, 0, 0]):
         gr06 = tf[0:3, 0:3]
