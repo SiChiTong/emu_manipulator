@@ -7,7 +7,7 @@ except:
 from scipy.spatial.transform import Rotation as R
 class EmuRobot:
     def __init__(self, tool_length = 0):
-        self.L1, self.L2, self.Le = 0.12596, 0.466, 0.1852
+        self.L1, self.L2, self.Le = 0.12596, 0.466, 0.043
         self.a1, self.a2, self.a3 = 0.30767, 0.400, 0.05 
         self.dh_param = np.array([[0, self.a1, self.L1, pi/2], [pi/2, 0, self.a2, 0], [0, 0, self.a3, pi/2], [0, self.L2, 0, -pi/2], [0, 0, 0, pi/2], [0, self.Le, 0, 0]])
         self.rho = [1]*6
@@ -101,6 +101,7 @@ class EmuRobot:
         if lastq is not None:
             lastq = lastq.reshape(6, len(lastq[0]))
             lastq = lastq.T
+            return lastq
         else:
             return None
 
@@ -109,7 +110,7 @@ class EmuRobot:
         for i in range(6):
             dist[i] = dist[i]*weight[i]
         cost = np.sum(dist, axis = 0)
-        return list(lastq[np.array(list(cost).index(min(cost)))])
+        return list(soln[np.array(list(cost).index(min(cost)))])
 
     def getCartesianJog(self, q_now, increment, numDof = 6):
         # return q_now.reshape(6,1) + np.dot(np.linalg.inv(self.getJacobian( q_now, numDof)),increment.reshape(6,1))
