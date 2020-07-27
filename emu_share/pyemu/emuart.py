@@ -152,6 +152,13 @@ class Emuart:
     
     def setActuator(self, jointNum, state):
         self.write(30+jointNum, [state])
+        
+    def grip(self, state):
+        self.write(0x95, [state])
+        
+    def setOD(self, channel, state):
+        self.write(20+channel, [state])
+        
 
     def setLD3(self, state):
         self.write(0x93, [state])

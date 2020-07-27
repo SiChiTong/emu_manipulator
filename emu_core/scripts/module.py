@@ -2,7 +2,7 @@ self.log('+++ Initializing Module Script +++')
 
 binMsg = JointState()
 binMsg.name = ['green', 'blue', 'yellow']
-binMsg.position = [0.46, 0.46, 0.46]
+binMsg.position = [0.66, 0.46, 0.46]
 binMsg.velocity = [0.31, 0, -0.32]
 
 poseList = [[0.10599999999999998, 0.525, 11, -0.004222495939768292, 0.9999910852242827, -6.123179408479028e-17, -2.585533068524967e-19],
