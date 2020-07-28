@@ -88,6 +88,7 @@ class Core:
 	def log(self, text, msg_type = None):
 		text = str(text)
 		msg = String()
+		head = ''
 		if msg_type == None:
 			rospy.loginfo(text)
 			head = 'd_'
@@ -148,13 +149,15 @@ class Core:
 		st_time = time.time()
 		time.sleep(0.4)
 		while self.notMoving(s_pose, goal, 0.03, joint):
-			self.log('Not moving..')
+			self.log('Not moving..', 'warn')
 			if relative:
 				self.emulator.moveRelative(joint, goal, t)
 			else:
 				self.emulator.moveAbsolute(joint, goal, t)
 			time.sleep(0.2)
-			if time.time()-st_time > timeout: break
+			if time.time()-st_time > timeout: 
+				self.log('MoveOne command timeout!', 'error')
+				break
 		if blocking: time.sleep(t)
 		return 1
 
@@ -168,13 +171,15 @@ class Core:
 		st_time = time.time()
 		time.sleep(0.4)
 		while self.notMoving(s_pose, pose, 0.03):
-			self.log('Not moving..')
+			self.log('Not moving..', 'warn')
 			if relative:
 				self.emulator.moveRelative('all', pose, t)
 			else:
 				self.emulator.moveAbsolute('all', pose, t)
 			time.sleep(0.2)
-			if time.time()-st_time > timeout: break
+			if time.time()-st_time > timeout: 
+				self.log('MoveTo command timeout!', 'error')
+				break
 		if blocking: time.sleep(t)
 		return 1
 	
@@ -188,7 +193,7 @@ class Core:
 		except rospy.ServiceException as e:
 			self.log("Service call failed: %s"%e)
 
-	def executeTrajectory(self, joint_trajectory):
+	def executeTrajectory(self, joint_trajectory, blocking = 0, timeout = 30):
 		p,v,t = [[],[],[],[],[],[]],[[],[],[],[],[],[]],[]
 		lt = 0
 		first_vias = joint_trajectory.points[1].positions
@@ -202,14 +207,18 @@ class Core:
 			t_now = point.time_from_start.secs+(1e-9*point.time_from_start.nsecs)
 			t.append(t_now-lt)
 			lt = t_now
-		self.log('Trajectory vector: '+str(p)+' '+str(v)+' '+str(t))
+		st_time = time.time()
+		self.log('Trajectory vector: '+str(p)+'\n'+str(v)+'\n'+str(t))
 		self.emulator.sendViaPoints(p, v, t)
 		s_pose = self.getStates()
 		while self.notMoving(s_pose, first_vias, 0.02):
 			time.sleep(0.2)
-			self.log('Not moving..')
+			self.log('Not moving..', 'warn')
 			self.emulator.sendViaPoints(p, v, t)
-		# if blocking: time.sleep(t)
+			if time.time()-st_time > timeout: 
+				self.log('Execute trajectory command timeout!', 'error')
+				break
+		if blocking: time.sleep(sum(t))
 		return 1
 
 	def run(self, script):
@@ -222,6 +231,34 @@ class Core:
 			exec(data)
 		except Exception as e:
 			self.log('Wrong Input: %s'%e, 'error')
+
+	def grip(self, method = 'jaw', timeout = 6):
+		self.log('Gripping...')
+		self.emulator.grip(1)
+		st_time = time.time()
+		time.sleep(0.2)
+		while not (self.getStatus()[0] & 0b00000010)>>1:
+			self.log('Not gripping..', 'warn')
+			self.emulator.grip(1)
+			time.sleep(0.2)
+			if time.time()-st_time > timeout: 
+				self.log('Grip command timeout!', 'error')
+				break
+		return 1
+
+	def release(self, method = 'jaw', timeout = 6):
+		self.log('Releasing...')
+		self.emulator.grip(0)
+		st_time = time.time()
+		time.sleep(0.2)
+		while (self.getStatus()[0] & 0b00000010)>>1:
+			self.log('Not releasing..', 'warn')
+			self.emulator.grip(0)
+			time.sleep(0.2)
+			if time.time()-st_time > timeout: 
+				self.log('Release command timeout!', 'error')
+				break
+		return 1
 
 
 	def publishJointStates(self):
