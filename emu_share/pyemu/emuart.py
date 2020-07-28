@@ -167,11 +167,19 @@ class Emuart:
         self.write(0x94, [state])
         
     def sendViaPoints(self, qr, vr, t):
-        viapoints = qr[0]+qr[1]+qr[2]+qr[3]+qr[4]+qr[5]+vr[0]+vr[1]+vr[2]+vr[3]+vr[4]+vr[5]+t
+        ar, br = [],[]
+        avr, bvr = [],[]
+        for i in range(len(qr[0])):
+            ar.append(qr[3][i]-qr[4][i]-qr[5][i])
+            br.append(qr[3][i]+qr[4][i]-qr[5][i])
+            avr.append(vr[3][i]-vr[4][i]-vr[5][i])
+            bvr.append(vr[3][i]+vr[4][i]-vr[5][i])
+        # print (ar, br, avr, bvr)
+        viapoints = qr[0]+qr[1]+qr[2]+qr[3]+ar+br+vr[0]+vr[1]+vr[2]+vr[3]+avr+bvr+t
         data = []
         for i in viapoints:
             data = data + singleTo4(floatToBin(i))
-        # print (data, len(data))
+        # print (viapoints, len(data))
         self.write(82, data)
         
 

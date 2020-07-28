@@ -159,6 +159,7 @@ class Core:
 				self.log('MoveOne command timeout!', 'error')
 				break
 		if blocking: time.sleep(t)
+		self.log('Move '+str(joint)+' to ' +  str(goal)+' successfully!')
 		return 1
 
 	def moveTo(self, pose, t, relative = 0, blocking = 0, timeout = 30):
@@ -181,6 +182,7 @@ class Core:
 				self.log('MoveTo command timeout!', 'error')
 				break
 		if blocking: time.sleep(t)
+		self.log('Move to ' +  str(pose)+' successfully!')
 		return 1
 	
 	def plan(self, initialState, goalState):
@@ -219,6 +221,7 @@ class Core:
 				self.log('Execute trajectory command timeout!', 'error')
 				break
 		if blocking: time.sleep(sum(t))
+		self.log('Trajectory is successfully executed!')
 		return 1
 
 	def run(self, script):
@@ -232,7 +235,7 @@ class Core:
 		except Exception as e:
 			self.log('Wrong Input: %s'%e, 'error')
 
-	def grip(self, method = 'jaw', timeout = 6):
+	def grip(self, method = 'jaw', timeout = 20):
 		self.log('Gripping...')
 		self.emulator.grip(1)
 		st_time = time.time()
@@ -244,6 +247,22 @@ class Core:
 			if time.time()-st_time > timeout: 
 				self.log('Grip command timeout!', 'error')
 				break
+		self.log('Grip successfully!')
+		return 1
+
+	def setOD(self, channel, state, timeout = 20):
+		self.log('Setting OD{} to {}'.format(channel, state))
+		self.emulator.setOD(channel, state)
+		st_time = time.time()
+		time.sleep(0.2)
+		while (not (self.getStatus()[1] & 128>>(channel-1))) if state else (self.getStatus()[1] & 128>>(channel-1)):
+			self.log('Not setting..', 'warn')
+			self.emulator.setOD(channel, state)
+			time.sleep(0.2)
+			if time.time()-st_time > timeout: 
+				self.log('SetOD command timeout!', 'error')
+				break
+		self.log('Set OD{} to {} successfully!'.format(channel, state))
 		return 1
 
 	def release(self, method = 'jaw', timeout = 6):
@@ -258,6 +277,7 @@ class Core:
 			if time.time()-st_time > timeout: 
 				self.log('Release command timeout!', 'error')
 				break
+		self.log('Released successfully!')
 		return 1
 
 
@@ -289,15 +309,16 @@ class Core:
 		else:
 			print ('Joint states is not published yet!')
 			self.log('Joint states is not published yet!', 'error')
-		print (dq)
+		# print (dq)
 		self.log('Input twist: '+str(twist))
 		time.sleep(0.05)
 		self.log('Output joint increment: '+str(dq))
 		# self.emulator.moveRelative('all', dq, 5)
-		self.moveTo(dq, duration = 3, relative = 1)
+		self.moveTo(dq, t = 3, relative = 1)
 
 	def configJogCallback(self, state):
 		position_array = state.position
+		jointNum = None
 		for n,i in enumerate(position_array):
 			if i == 0:
 				pass
@@ -306,7 +327,7 @@ class Core:
 				increment = i	
 		self.log('Input joint increments: '+str(position_array))
 		# self.emulator.moveRelative(jointNum, increment, 3)
-		self.moveOne(jointNum, increment, duration = 3, relative = 1)
+		if jointNum: self.moveOne(joint = jointNum, goal = increment, t = 3, relative = 1)
 
 if __name__ == "__main__":
 	emu = Core()
