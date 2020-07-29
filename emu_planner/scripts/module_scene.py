@@ -33,22 +33,24 @@ package_path = rospack.get_path('emu_planner')
 moveit_commander.roscpp_initialize(sys.argv)
 rospy.init_node('modules_state_validator', anonymous=True)
 
+b_off = 0.06
 
 def setBin(scene, order = ['blue', 'yellow', 'green'], z = [0, 0, 0], y = [0.3, 0, -0.3]):
+    global b_off
     left_bin_pose = geometry_msgs.msg.Pose()
-    left_bin_pose.position.x = 0.5-0.06
+    left_bin_pose.position.x = 0.5+b_off
     left_bin_pose.position.y = y[0]
     left_bin_pose.position.z = z[0]-0.46
     left_bin_pose.orientation.w = 1
 
     mid_bin_pose = geometry_msgs.msg.Pose()
-    mid_bin_pose.position.x = 0.5-0.06
+    mid_bin_pose.position.x = 0.5+b_off
     mid_bin_pose.position.y = y[1]
     mid_bin_pose.position.z = z[1]-0.46
     mid_bin_pose.orientation.w = 1
 
     right_bin_pose = geometry_msgs.msg.Pose()
-    right_bin_pose.position.x = 0.5-0.06
+    right_bin_pose.position.x = 0.5+b_off
     right_bin_pose.position.y = y[2]
     right_bin_pose.position.z = z[2]-0.46
     right_bin_pose.orientation.w = 1
@@ -56,7 +58,7 @@ def setBin(scene, order = ['blue', 'yellow', 'green'], z = [0, 0, 0], y = [0.3, 
     poses = [left_bin_pose, mid_bin_pose, right_bin_pose]
     for i in range(3):
         scene.addMesh('{}_bin'.format(order[i]), poses[i], package_path+'/meshes/bin_{}.dae'.format(order[i]))
-        if z[i] != 0: scene.addBox('{}_stack'.format(order[i]), 0.4, 0.3, z[i]-0.46, 0.5+0.4/2, y[i], (z[i]-0.46)/2)
+        if z[i] != 0: scene.addBox('{}_stack'.format(order[i]), 0.4, 0.3, z[i]-0.46, 0.5+b_off+0.4/2, y[i], (z[i]-0.46)/2)
 
     scene.setColor('blue_bin', 0.3, 0.64, 1, 1)
     scene.setColor('yellow_bin', 1, 1, 0.3, 1)
@@ -112,7 +114,7 @@ def binGenCb(js):
     sv.sendColors()
 
 base_pose = Pose()
-base_pose.position.x = -0.06
+base_pose.position.x = +b_off
 base_pose.orientation.w = 1
 
 sv.addMesh('work_plane', base_pose, package_path+'/meshes/work_plane.STL')

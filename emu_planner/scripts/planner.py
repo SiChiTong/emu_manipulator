@@ -46,7 +46,7 @@ from emu_planner.srv import *
 robot = moveit_commander.RobotCommander()
 ss = moveit_commander.MoveGroupCommander('arm')
 sv = StateValidity()
-
+ss.set_planning_time(3)
 
 def planner_handle(request):
 	global ss

@@ -17,7 +17,7 @@ class EmuRobot:
                                 [0, 0, 0, pi/2],
                                 [0, self.Le, 0, 0]])
         self.rho = [1]*6
-        self.joint_limit = np.matrix('-3.1066,3.1066;-2.917,1.703;-1.4312,4.119;-3.1067,3.1067;-3.1067,3.1067;-3.1067,3.1067')
+        self.joint_limit = np.matrix('-3.1066,3.1066;-2.917,1.703;-1.4312,1.57075;-3.1067,3.1067;-3.1067,3.1067;-3.1067,3.1067')
         
     def __str__(self):
         return ('emu Robot')
@@ -110,7 +110,7 @@ class EmuRobot:
         else:
             return None
 
-    def computeIKranged(self,pose,offset = (0,0,0),lb = (0,0,0),ub = (0,0,0),step = 0.05):
+    def computeIKranged(self,pose,offset = (0,0,0),lb = (0,0,0),ub = (0,0,0),step = 0.2):
         newpose = pose
         ikl = []
         oldorient = EmuRobot.quat2eul([pose.orientation.x, pose.orientation.y, pose.orientation.z,pose.orientation.w])
@@ -139,7 +139,7 @@ class EmuRobot:
                 
         return ikl
     
-    def leastDist(self, soln, q_now, weight = [1.5, 1.7, 1.2, 0.8, 0.8, 0.8]):
+    def leastDist(self, soln, q_now, weight = [0.7, 1.7, 1.2, 0.5, 0.3, 0.3]):
         dist = abs(np.array(soln)-np.array(q_now))
         print (dist)
         for u in dist:

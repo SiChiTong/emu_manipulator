@@ -40,6 +40,9 @@ class Core:
 			'tray_right_2': [-pi/2, 0.09, 0.1503, 1.5, 0, 0],
 			'tray_right_3': [-pi/2, 0.09, 0.1503, 1.2, 0, 0],
 			'zero': [0, 0, 0, 0, 0, 0]}
+		self.offset = {'bottle': (0, 0.033, -0.1205), 
+				'can': (0, 0.038, -0.1205), 
+				'snack': (0, 0.0923, -0.1602)}
 		self.lock = 0
 		self.port = _port
 		self.emulator = pyemu.Emuart(self.port)
@@ -329,7 +332,8 @@ class Core:
 		# self.emulator.moveRelative(jointNum, increment, 3)
 		if jointNum: self.moveOne(joint = jointNum, goal = increment, t = 3, relative = 1)
 
-	def getValidPath(self, path_array):
+	def getValidPath(self, path_array, q_now = None):
+		q_now = self.getStates() if q_now is None else q_now
 		vailid_path = []
 		for i in path_array:
 			if self.isValid(i):
@@ -338,7 +342,7 @@ class Core:
 			self.log('No vaild config found!')
 		else:
 			self.log('Valid Path: '+str(vailid_path))
-			soln = self.kin_solver.leastDist(vailid_path, self.getStates())
+			soln = self.kin_solver.leastDist(vailid_path, q_now)
 		self.log("Valid least distance solution: "+str(soln))
 		return soln
 
@@ -364,9 +368,9 @@ class Core:
 				pose.orientation.z = 0.9073
 				pose.orientation.w = -0.08874
 			elif binIdx == 1:
-				pose.position.x = x_offset -0.05
-				pose.position.y = binMsg.velocity[binIdx]
-				pose.position.z = binMsg.position[binIdx]+(0.56-0.4)*sin(0.5236)
+				# pose.position.x = x_offset -0.05
+				# pose.position.y = binMsg.velocity[binIdx]
+				# pose.position.z = binMsg.position[binIdx]+(0.56-0.4)*sin(0.5236)
 				pose.orientation.x = 0.2588
 				pose.orientation.y = 1e-7
 				pose.orientation.z = 0.9659
@@ -377,6 +381,51 @@ class Core:
 				pose.orientation.z = 0.9073
 				pose.orientation.w = 0.08874
 		return pose
+
+	def pickTrash(self, trash, z_offset = 0.25):
+		target = Pose()
+		target.position.x = trash.position.x
+		target.position.y = trash.position.y
+		target.position.z = z_offset
+		
+		t_stand = str(trash.position.z)[0] 
+		t_type = str(trash.position.z)[1] 
+
+		if not t_type == '3':
+			t_name = 'bottle' if t_type is '1' else 'can'
+			if t_stand == '1':
+				target.orientation = trash.orientation
+				config_list = self.kin_solver.computeIK(target, offset = self.offset[t_name])
+			elif t_stand == '2':
+				target.orientation.x = 0
+				target.orientation.y = -0.70709
+				target.orientation.z = 0
+				target.orientation.w = 0.7071232
+				config_list = self.kin_solver.computeIKranged(target, offset = self.offset[t_name], lb = (0, 0, -pi), ub = (0, 0, pi))
+		else:
+			t_name = 'snack'
+			target.orientation = trash.orientation
+			config_list = self.kin_solver.computeIKranged(target, offset = self.offset[t_name], lb = (0, 0, -pi), ub = (0, 0, pi))
+
+		return config_list
+
+	def placeTrash(self, trash, binMsg, x_offset = 0.45):
+		t_stand = str(trash.position.z)[0] 
+		t_type = str(trash.position.z)[1] 
+
+		if not t_type == '3':
+			t_name = 'bottle' if t_type is '1' else 'can'
+			bN = 'yellow' if t_name is 'bottle' else 'green'
+			iS = 0
+		else:
+			t_name = 'snack'
+			bN = 'blue'
+			iS = 1
+		bI = binMsg.name.index(bN)
+		
+		config_list = self.kin_solver.computeIK(Core.toBin(binMsg, binIdx = bI, isSnack = iS), offset = self.offset[t_name])
+
+		return config_list
 
 if __name__ == "__main__":
 	emu = Core()

@@ -9,7 +9,7 @@ from sensor_msgs.msg import JointState
 class StateValidity():
     def __init__(self):
         # subscribe to joint joint states
-        rospy.Subscriber("joint_states", JointState, self.jointStatesCB, queue_size=1)
+        # rospy.Subscriber("joint_states", JointState, self.jointStatesCB, queue_size=1)
         # prepare service for collision check
         self.sv_srv = rospy.ServiceProxy('/check_state_validity', GetStateValidity)
         # wait for service to become available
@@ -80,8 +80,8 @@ class StateValidity():
         rospy.spin()
 
 
-if __name__ == '__main__':
-    rospy.init_node('collision_checker_node', anonymous=False)
-    collision_checker_node = StateValidity()
-    collision_checker_node.checkCollision([-3.1,-3.1,0,0,0,0])
+
+# rospy.init_node('collision_checker_node', anonymous=False)
+# collision_checker_node = StateValidity()
+    # collision_checker_node.checkCollision([-3.1,-3.1,0,0,0,0])
     # collision_checker_node.start_collision_checker()
