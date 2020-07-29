@@ -68,7 +68,7 @@ def setBin(scene, order = ['blue', 'yellow', 'green'], z = [0, 0, 0], y = [0.3, 
 bottle_size = (0.03, 0.12) #radius, height
 can_size = (0.025, 0.1)
 
-def gen_trash(scene, name, pose_obj):
+def genTrash(scene, name, pose_obj):
     t_stand = str(pose_obj.position.z)[0] 
     t_type = str(pose_obj.position.z)[1] 
     q_s = lambda q : [q.x, q.y, q.z, q.w]
@@ -103,7 +103,7 @@ is_ready = (1, 0)
 def trashGenCb(pA):
     print ('Adding trashes')
     for num, pose in enumerate(pA.poses):
-        gen_trash(sv, 'trash_{}'.format(num), pose)
+        genTrash(sv, 'trash_{}'.format(num), pose)
     sv.sendColors()
 
 def binGenCb(js):

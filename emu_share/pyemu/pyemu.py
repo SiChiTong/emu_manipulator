@@ -5,11 +5,17 @@ try:
 except:
     from util import kinematics
 from scipy.spatial.transform import Rotation as R
+import itertools
 class EmuRobot:
     def __init__(self, tool_length = 0):
         self.L1, self.L2, self.Le = 0.12596, 0.466, 0.043
         self.a1, self.a2, self.a3 = 0.30767, 0.400, 0.05 
-        self.dh_param = np.array([[0, self.a1, self.L1, pi/2], [pi/2, 0, self.a2, 0], [0, 0, self.a3, pi/2], [0, self.L2, 0, -pi/2], [0, 0, 0, pi/2], [0, self.Le, 0, 0]])
+        self.dh_param = np.array([[0, self.a1, self.L1, pi/2],
+                                [pi/2, 0, self.a2, 0],
+                                [0, 0, self.a3, pi/2],
+                                [0, self.L2, 0, -pi/2],
+                                [0, 0, 0, pi/2],
+                                [0, self.Le, 0, 0]])
         self.rho = [1]*6
         self.joint_limit = np.matrix('-3.1066,3.1066;-2.917,1.703;-1.4312,4.119;-3.1067,3.1067;-3.1067,3.1067;-3.1067,3.1067')
         
@@ -43,7 +49,7 @@ class EmuRobot:
         tf[0:3,0:3] = r
         tf[0:3,3]=np.matrix([[x],[y],[z]])
         gr06 = tf[0:3, 0:3]
-        gw = tf[0:3,3]+gr06.T*np.matrix([0+offset[0], 0+offset[1], -self.Le+offset[2]]).T
+        gw = tf[0:3,3]+np.dot(gr06,np.matrix([0+offset[0], 0+offset[1], -self.Le+offset[2]]).T)
         x = gw[0]
         y = gw[1]
         z = gw[2]
@@ -104,6 +110,35 @@ class EmuRobot:
         else:
             return None
 
+    def computeIKranged(self,pose,offset = (0,0,0),lb = (0,0,0),ub = (0,0,0),step = 0.05):
+        newpose = pose
+        ikl = []
+        oldorient = EmuRobot.quat2eul([pose.orientation.x, pose.orientation.y, pose.orientation.z,pose.orientation.w])
+        cmb = []
+        for i in range(3):
+            
+            if lb[i] != ub[i]:
+                a = np.arange(lb[i], ub[i],step).tolist()
+            else:
+                a = [oldorient[i]]
+            cmb.append(a)
+        
+        
+        for cm in itertools.product(*cmb):
+            
+            q_star = EmuRobot.eul2quat([cm[0],cm[1],cm[2]])
+            newpose.orientation.x = q_star[0]
+            newpose.orientation.y = q_star[1]
+            newpose.orientation.z = q_star[2]
+            newpose.orientation.w = q_star[3]
+            
+            ik = self.computeIK(newpose,offset)
+            
+            if type(ik).__name__ is not 'NoneType':
+                ikl = ikl+ik.tolist()
+                
+        return ikl
+    
     def leastDist(self, soln, q_now, weight = [1.5, 1.7, 1.2, 0.8, 0.8, 0.8]):
         dist = abs(np.array(soln)-np.array(q_now))
         print (dist)
@@ -132,6 +167,15 @@ class EmuRobot:
     def quat2rotm(quat):
         r = R.from_quat(quat)
         return r.as_matrix()
+    
+    @staticmethod
+    def eul2quat(eul,p='xyz'):
+        r = R.from_euler(p,eul)
+        return r.as_quat()
+    @staticmethod
+    def quat2eul(quat,p='xyz'):
+        r = R.from_quat(quat)
+        return r.as_euler(p)
 if __name__ == '__main__':
     a = EmuRobot()
     tf = np.matrix('1 0 0 -0.5;0 1 0 0;0 0 1 0.5;0 0 0 1')

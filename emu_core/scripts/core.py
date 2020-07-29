@@ -329,6 +329,55 @@ class Core:
 		# self.emulator.moveRelative(jointNum, increment, 3)
 		if jointNum: self.moveOne(joint = jointNum, goal = increment, t = 3, relative = 1)
 
+	def getValidPath(self, path_array):
+		vailid_path = []
+		for i in path_array:
+			if self.isValid(i):
+				vailid_path.append(list(i))
+		if vailid_path is []: 
+			self.log('No vaild config found!')
+		else:
+			self.log('Valid Path: '+str(vailid_path))
+			soln = self.kin_solver.leastDist(vailid_path, self.getStates())
+		self.log("Valid least distance solution: "+str(soln))
+		return soln
+
+	@staticmethod
+	def toBin(binMsg, binIdx, isSnack = 0, x_offset = 0.45):
+		pose = Pose()
+		pose.position.x = x_offset
+		pose.position.y = binMsg.velocity[binIdx]
+		if 0.56-x_offset >= 0:
+			pose.position.z = binMsg.position[binIdx]+(0.56-x_offset)*sin(0.5236)
+		else:
+			pose.position.z = binMsg.position[binIdx]
+		
+		if isSnack:
+			pose.orientation.x = 0.86727
+			pose.orientation.y = 3e-7
+			pose.orientation.z = 0.49783
+			pose.orientation.w = 2e-7
+		else:
+			if binIdx == 0:
+				pose.orientation.x = 0.24312
+				pose.orientation.y = 0.3325
+				pose.orientation.z = 0.9073
+				pose.orientation.w = -0.08874
+			elif binIdx == 1:
+				pose.position.x = x_offset -0.05
+				pose.position.y = binMsg.velocity[binIdx]
+				pose.position.z = binMsg.position[binIdx]+(0.56-0.4)*sin(0.5236)
+				pose.orientation.x = 0.2588
+				pose.orientation.y = 1e-7
+				pose.orientation.z = 0.9659
+				pose.orientation.w = 3e-7
+			elif binIdx == 2:
+				pose.orientation.x = 0.24312
+				pose.orientation.y = -0.3325
+				pose.orientation.z = 0.9073
+				pose.orientation.w = 0.08874
+		return pose
+
 if __name__ == "__main__":
 	emu = Core()
 	emu.log('emu core initialized successfully', None)

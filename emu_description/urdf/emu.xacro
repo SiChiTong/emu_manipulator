@@ -14,11 +14,11 @@
     <!-- <link name="world"/> -->
 
     <link name="base_link">
-		<inertial>
+		<!-- <inertial>
 			<origin xyz = "0.03581298 0.00000140 0.07057116"/>
 			<mass value = "4.6883"/>
 			<inertia ixx = "0.02107003" iyy = "0.04864817" izz = "0.05239187" ixy = "0.00000013" ixz = "0.0149951" iyz = "-0.00000032"/>
-		</inertial>
+		</inertial> -->
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
