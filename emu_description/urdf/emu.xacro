@@ -181,12 +181,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="package://emu_description/meshes/tool_static.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/tool_static.dae" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="package://emu_description/meshes/tool_static.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/tool_static.dae" scale="1 1 1"/>
             </geometry>
             <material name="Grey">
                 <color rgba="0.7 0.7 0.7 1"/>
@@ -199,12 +199,12 @@
         <collision> 
 			<origin xyz="0 0 0"/> 
 			<geometry> 
-				<mesh filename="package://emu_description/meshes/tool_sliding.STL" scale="1 1 1"/>
+				<mesh filename="package://emu_description/meshes/tool_sliding.dae" scale="1 1 1"/>
 			</geometry> 
 		</collision>
         <visual>
             <geometry>
-                <mesh filename="package://emu_description/meshes/tool_sliding.STL" scale="1 1 1"/>
+                <mesh filename="package://emu_description/meshes/tool_sliding.dae" scale="1 1 1"/>
             </geometry>
             <material name="Grey">
                 <color rgba="0.7 0.7 0.7 1"/>
@@ -288,21 +288,21 @@
         <child link="sliding_jaw"/>
         <axis xyz = "0 0 1"/>
         <limit lower = "0" upper = "0.0715" effort = "10" velocity = "5" acceleration = "10"/>
-        <origin rpy="1.57075 0 0" xyz = "0 0.0288 0.145"/>
+        <origin rpy="1.57075 0 0" xyz = "0 0.0178 0.1205"/>
     </joint>
 
     <joint name="grasp_frame_transform" type="fixed">
         <parent link="tool_base"/>
         <child link="grasp_frame"/>
         <axis xyz = "0 0 1"/>
-        <origin rpy="0 0 0" xyz = "0 0 0.145"/>
+        <origin rpy="0 0 0" xyz = "0 -0.033 0.1205"/>
     </joint>
 
     <joint name="suction_frame_transform" type="fixed">
         <parent link="tool_base"/>
         <child link="suction_frame"/>
         <axis xyz = "0 0 1"/>
-        <origin rpy="0 0 0" xyz = "0 -0.0881 0.1852"/>
+        <origin rpy="0 0 0" xyz = "0 -0.0923 0.1602"/>
     </joint>
 
     <transmission name="tran1">
