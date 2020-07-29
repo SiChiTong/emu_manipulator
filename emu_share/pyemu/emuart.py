@@ -66,7 +66,9 @@ class Emuart:
             if read(self.ser) == 0x77:
                 crc = [0]*4
                 command = read(self.ser) #get command
-                dataLen = read(self.ser) #get data length
+                dataLen1 = read(self.ser) #get data length1
+                dataLen2 = read(self.ser) #get data length2
+                dataLen = (dataLen1 << 8) | dataLen2 
                 data = [None]*dataLen
                 for i in range(dataLen+4):
                     if i >= dataLen: crc[i-dataLen] = read(self.ser)
@@ -114,7 +116,7 @@ class Emuart:
             return -1
 
     def write(self, command, data):    
-        header = [0x7E, 0x77, command, len(data)]
+        header = [0x7E, 0x77, command, (len(data)>>8)&0xFF, len(data)&0xFF]
         crc32 = binascii.crc32(bytes(data+[command]))
         crcSep = [(crc32>>24)&0xFF, (crc32>>16)&0xFF, (crc32>>8)&0xFF, crc32&0xFF]
         data = header+data+crcSep

@@ -253,21 +253,6 @@ class Core:
 		self.log('Grip successfully!')
 		return 1
 
-	def setOD(self, channel, state, timeout = 20):
-		self.log('Setting OD{} to {}'.format(channel, state))
-		self.emulator.setOD(channel, state)
-		st_time = time.time()
-		time.sleep(0.2)
-		while (not (self.getStatus()[1] & 128>>(channel-1))) if state else (self.getStatus()[1] & 128>>(channel-1)):
-			self.log('Not setting..', 'warn')
-			self.emulator.setOD(channel, state)
-			time.sleep(0.2)
-			if time.time()-st_time > timeout: 
-				self.log('SetOD command timeout!', 'error')
-				break
-		self.log('Set OD{} to {} successfully!'.format(channel, state))
-		return 1
-
 	def release(self, method = 'jaw', timeout = 6):
 		self.log('Releasing...')
 		self.emulator.grip(0)
@@ -283,18 +268,49 @@ class Core:
 		self.log('Released successfully!')
 		return 1
 
+	def setOD(self, channel, state, timeout = 20):
+		self.log('Setting OD{} to {}'.format(channel, state))
+		self.emulator.setOD(channel, state)
+		st_time = time.time()
+		time.sleep(0.2)
+		while (not (self.getStatus()[1] & 128>>(channel-1))) if state else (self.getStatus()[1] & 128>>(channel-1)):
+			self.log('Not setting..', 'warn')
+			self.emulator.setOD(channel, state)
+			time.sleep(0.2)
+			if time.time()-st_time > timeout: 
+				self.log('SetOD command timeout!', 'error')
+				break
+		self.log('Set OD{} to {} successfully!'.format(channel, state))
+		return 1
+
+	def setActuator(self, jointNum, state, timeout = 20):
+		self.log('Setting M{} to {}'.format(jointNum, state))
+		self.emulator.setActuator(jointNum, state)
+		st_time = time.time()
+		time.sleep(0.2)
+		while (not (self.getStatus()[0] & 128>>(jointNum-1))) if state else (self.getStatus()[0] & 128>>(jointNum-1)):
+			self.log('Not setting..', 'warn')
+			self.emulator.setActuator(jointNum, state)
+			time.sleep(0.2)
+			if time.time()-st_time > timeout: 
+				self.log('SetM command timeout!', 'error')
+				break
+		self.log('Set M{} to {} successfully!'.format(jointNum, state))
+		return 1	
 
 	def publishJointStates(self):
 		while 1:
 			if not self.lock:
 				joint_states = self.emulator.requestJointStates()
 				if not joint_states == -1:
-					self.status1.data = joint_states[1][0]
-					self.status2.data = joint_states[1][1]
-					joint_states = joint_states[0]
+					self.status1.data = joint_states[2][0]
+					self.status2.data = joint_states[2][1]
+					pos_states = joint_states[0]
+					vel_states = joint_states[1]
 					now = rospy.get_rostime()
 					self.joint_msg.header.stamp = now
-					self.joint_msg.position = joint_states
+					self.joint_msg.position = pos_states
+					self.joint_msg.velocity = vel_states
 					self.joint_states_publisher.publish(self.joint_msg)
 					time.sleep(0.025)
 					self.status1_publisher.publish(self.status1)

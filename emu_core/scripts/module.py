@@ -57,7 +57,7 @@ def transferTrash(self, trash, binMsg):
 
 
 # a = self.placeTrash(trashMsg.poses[3], binMsg)
-transferTrash(self, trashMsg.poses[0], binMsg)
+transferTrash(self, trashMsg.poses[2], binMsg)
 
 # a = getTrash(self, trashMsg.poses[1] , 0.1)
 # self.log(a)
