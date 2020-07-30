@@ -3,7 +3,7 @@ self.log('+++ Initializing Module Script +++')
 #Publishing fake Trashes and Bins ==================================================
 binMsg = JointState()
 binMsg.name = ['green', 'blue', 'yellow']
-binMsg.position = [0.46, 0.46, 0.46]
+binMsg.position = [0.56, 0.46, 0.76]
 binMsg.velocity = [0.31, 0, -0.32]
 
 poseList = [[0.10599999999999998, 0.75, 11, -0.004222495939768292, 0.9999910852242827, -6.123179408479028e-17, -2.585533068524967e-19],
@@ -29,35 +29,74 @@ for trash in range(len(poseList)):
     trash_i.orientation.z = poseList[trash][5]
     trash_i.orientation.w = poseList[trash][6]
     trashMsg.poses.append(trash_i)
+
 self.bin_poses_publisher.publish(binMsg)
-time.sleep(0.2)
+time.sleep(0.5)
 self.trash_poses_publisher.publish(trashMsg)
 #=======================================================================================
 
 def transferTrash(self, trash, binMsg):
+    z_o = 0.12
+    t_stand = str(trash.position.z)[0] 
+    t_type = str(trash.position.z)[1] 
+    if not t_type == '3':
+        if t_stand == '1':
+            g_o = 0.11-0.03
+        elif t_stand == '2':
+            g_o = 0.065-0.03
+    else:
+        g_o = 0.08
+
     i = JointState()
     i.name = self.joint_msg.name
     i.position = self.getStates()
     g = JointState()
     g.name = i.name
 
-    pick_cfg = self.getValidPath(self.pickTrash(trash, z_offset = 0.1))
-    place_cfg = self.getValidPath(self.placeTrash(trash, binMsg), q_now = pick_cfg)
+    self.log('Solving for all picking configuration...')
+    tmp_cfg, tmp_grd = self.pickTrash(trash, z_offset = z_o, guarded_offset = g_o)
+    self.log('Finding the best picking configuration...')
+    pick_cfg = self.getValidPath(tmp_cfg, q_now = self.getStates()) if len(tmp_cfg) > 1 else tmp_cfg[0]
+    self.log('Finding the best guarded picking configuration...')
+    print (tmp_grd)
+    pick_grd = self.getValidPath(tmp_grd, q_now = pick_cfg) if len(tmp_grd) > 1 else tmp_grd[0]
+    self.log('Solving for all placing configuration...')
+    tmp_cfg, tmp_grd = self.placeTrash(trash, binMsg)
+    self.log('Finding the best placing configuration...')
+    place_cfg = self.getValidPath(tmp_cfg, q_now = pick_cfg) if len(tmp_cfg) > 1 else tmp_cfg[0]
+    place_grd = self.kin_solver.leastDist(tmp_grd, q_now = place_cfg) if len(tmp_grd) > 1 else tmp_grd[0]
 
     g.position = pick_cfg
     pick_path = self.plan(i, g)
     self.executeTrajectory(pick_path, blocking = 1)
-    time.sleep(1)
+    time.sleep(0.5)
+    
+    self.moveTo(list(pick_grd), 3, blocking = 1)
+    time.sleep(0.5)
+    if t_type is '3':
+        self.setOD(4, 1)
+    else:
+        self.grip()
+    self.moveTo(list(pick_cfg), 3, blocking = 1)
 
     i.position = pick_cfg
     g.position = place_cfg
     place_path = self.plan(i, g)
     self.executeTrajectory(place_path, blocking = 1)
+    time.sleep(0.5)
+
+    self.moveTo(list(place_grd), 3, blocking = 1)
+    time.sleep(0.5)
+    if t_type is '3':
+        self.setOD(4, 0)
+    else:
+        self.release()
+    self.moveTo(list(place_cfg), 3, blocking = 1)
 
 
 
-# a = self.placeTrash(trashMsg.poses[3], binMsg)
-transferTrash(self, trashMsg.poses[2], binMsg)
+# a = self.placeTrash(trashMsg.poses[0], binMsg)
+transferTrash(self, trashMsg.poses[5], binMsg)
 
 # a = getTrash(self, trashMsg.poses[1] , 0.1)
 # self.log(a)

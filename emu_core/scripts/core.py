@@ -174,7 +174,7 @@ class Core:
 			self.emulator.moveAbsolute('all', pose, t)
 		st_time = time.time()
 		time.sleep(0.4)
-		while self.notMoving(s_pose, pose, 0.03):
+		while self.notMoving(s_pose, pose, 0.05):
 			self.log('Not moving..', 'warn')
 			if relative:
 				self.emulator.moveRelative('all', pose, t)
@@ -233,10 +233,11 @@ class Core:
 		script_in = open(script_path)
 		data = script_in.read()
 		script_in.close()
-		try:
-			exec(data)
-		except Exception as e:
-			self.log('Wrong Input: %s'%e, 'error')
+		exec(data)
+		# try:
+		# 	exec(data)
+		# except Exception as e:
+		# 	self.log('Wrong Input: %s'%e, 'error')
 
 	def grip(self, method = 'jaw', timeout = 20):
 		self.log('Gripping...')
@@ -398,7 +399,7 @@ class Core:
 				pose.orientation.w = 0.08874
 		return pose
 
-	def pickTrash(self, trash, z_offset = 0.25):
+	def pickTrash(self, trash, z_offset = 0.12, guarded_offset = 0.07):
 		target = Pose()
 		target.position.x = trash.position.x
 		target.position.y = trash.position.y
@@ -406,26 +407,31 @@ class Core:
 		
 		t_stand = str(trash.position.z)[0] 
 		t_type = str(trash.position.z)[1] 
-
+		continue_dir = None
 		if not t_type == '3':
 			t_name = 'bottle' if t_type is '1' else 'can'
 			if t_stand == '1':
 				target.orientation = trash.orientation
 				config_list = self.kin_solver.computeIK(target, offset = self.offset[t_name])
+				target.position.z = z_offset-guarded_offset
+				guarded = self.kin_solver.computeIK(target, offset = self.offset[t_name])
 			elif t_stand == '2':
 				target.orientation.x = 0
 				target.orientation.y = -0.70709
 				target.orientation.z = 0
 				target.orientation.w = 0.7071232
 				config_list = self.kin_solver.computeIKranged(target, offset = self.offset[t_name], lb = (0, 0, -pi), ub = (0, 0, pi))
+				target.position.z = z_offset-guarded_offset
+				guarded = self.kin_solver.computeIKranged(target, offset = self.offset[t_name], lb = (0, 0, -pi), ub = (0, 0, pi))
 		else:
 			t_name = 'snack'
 			target.orientation = trash.orientation
 			config_list = self.kin_solver.computeIKranged(target, offset = self.offset[t_name], lb = (0, 0, -pi), ub = (0, 0, pi))
+			target.position.z = z_offset-guarded_offset
+			guarded = self.kin_solver.computeIKranged(target, offset = self.offset[t_name], lb = (0, 0, -pi), ub = (0, 0, pi))
+		return config_list, guarded
 
-		return config_list
-
-	def placeTrash(self, trash, binMsg, x_offset = 0.45):
+	def placeTrash(self, trash, binMsg, x_offset = 0.45, guarded_offset = 0.07):
 		t_stand = str(trash.position.z)[0] 
 		t_type = str(trash.position.z)[1] 
 
@@ -440,8 +446,10 @@ class Core:
 		bI = binMsg.name.index(bN)
 		
 		config_list = self.kin_solver.computeIK(Core.toBin(binMsg, binIdx = bI, isSnack = iS), offset = self.offset[t_name])
+		
+		guarded = self.kin_solver.computeIK(Core.toBin(binMsg, binIdx = bI, isSnack = iS, x_offset = 0.56), offset = self.offset[t_name])
 
-		return config_list
+		return config_list, guarded
 
 if __name__ == "__main__":
 	emu = Core()
