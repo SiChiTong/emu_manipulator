@@ -13,7 +13,7 @@ import rospkg
 import rospy
  
 from emu_planner.srv import *
-from std_msgs.msg import String, Float64, Float32, Header, UInt8
+from std_msgs.msg import String, Float64, Float32, Header, UInt8, Bool
 from geometry_msgs.msg import Twist, PoseArray, PoseStamped, Pose
 from sensor_msgs.msg import JointState,Image
 
@@ -36,9 +36,10 @@ class Core:
 			'tray_left_1': [pi/2, 0.09, 0.1503, 1.6, 0, 0],
 			'tray_left_2': [pi/2, 0.09, 0.1503, 1.45, 0, 0],
 			'tray_left_3': [pi/2, 0.09, 0.1503, 1.25, 0, 0],
-			'tray_right_1': [-pi/2, 0.09, 0.1503, 1.7, 0, 0],
-			'tray_right_2': [-pi/2, 0.09, 0.1503, 1.5, 0, 0],
-			'tray_right_3': [-pi/2, 0.09, 0.1503, 1.2, 0, 0],
+			'tray_right_1': [-pi/2, 0.09, 0.1503, 1.8, 0, 0],
+			'tray_right_2': [-pi/2, 0.09, 0.1503, 1.6, 0, 0],
+			'tray_right_3': [-pi/2, 0.09, 0.1503, 1.4, 0, 0],
+			'transition' : [0,0,0.8,0,0.5,0],
 			'zero': [0, 0, 0, 0, 0, 0]}
 		self.offset = {'bottle': (0, 0.033, -0.1205), 
 				'can': (0, 0.038, -0.1205), 
@@ -53,7 +54,8 @@ class Core:
 		self.joint_rate = rospy.Rate(5)
 		self.joint_msg = JointState()
 		self.joint_msg.header.frame_id = "base_link"
-		self.joint_msg.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
+		self.joint_name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
+		self.joint_msg.name = self.joint_name+['sliding_jaw_joint']
 		self.status1 = UInt8()
 		self.status2 = UInt8()
 
@@ -69,8 +71,9 @@ class Core:
 		self.joint_states_publisher = rospy.Publisher('emu/joint_states', JointState, queue_size = 20)
 		self.bin_poses_publisher = rospy.Publisher('emu/vision/bin_poses',JointState,queue_size = 20, latch=True)
 		self.trash_poses_publisher = rospy.Publisher('emu/vision/trash_poses', PoseArray, queue_size = 20, latch=True)
-		self.left_tray_publisher = rospy.Publisher('emu/vision/left_tray', Image, queue_size = 0,latch=True)
+		self.left_tray_publisher = rospy.Publisher('emu/vision/left_tray', Image, queue_size = 20,latch=True)
 		self.right_tray_publisher = rospy.Publisher('/emu/vision/right_tray', Image, queue_size = 20,latch=True)
+		self.attach_trash_publisher = rospy.Publisher('/emu/attach_trash', Bool, queue_size = 20,latch=True)
 
 	def __initSubscriber(self):
 		rospy.Subscriber('emu/jog/configuration', JointState, self.configJogCallback)
@@ -105,7 +108,7 @@ class Core:
 		self.emu_log.publish(msg)
 
 	def getStates(self):
-		return self.joint_msg.position
+		return self.joint_msg.position[0:6]
 
 	def getStatus(self):
 		return self.status1.data, self.status2.data
@@ -115,9 +118,14 @@ class Core:
 			pose_now = self.getStates()
 			d = [0,0,0,0,0,0]
 			dtm = [0,0,0,0,0,0]
+
 			for i in range(0,6):
 				dtm[i] = abs(abs(goal_pose[i]) - abs(start_pose[i]))
 				d[i] = abs(abs(pose_now[i]) - abs(start_pose[i]))
+			d[3] *= 0.25
+			d[5] *= 0.25
+			dtm[3] *= 0.25
+			dtm[5] *= 0.25
 			# print (d, dtm)
 			return 1 if sum(d) < tol*sum(dtm) else 0
 		else:
@@ -142,6 +150,12 @@ class Core:
 		else:
 			self.log('Return: '+str(ret))
 
+	def isGrip(self, state):
+		s = Bool()
+		s.data = state
+		self.attach_trash_publisher.publish(s)
+
+
 	def moveOne(self, joint, goal, t, relative = 0, blocking = 0, timeout = 30):
 		self.log('Moving '+str(joint)+' to ' +  str(goal))
 		s_pose = self.getStates()[joint-1]
@@ -151,7 +165,7 @@ class Core:
 			self.emulator.moveAbsolute(joint, goal, t)
 		st_time = time.time()
 		time.sleep(0.4)
-		while self.notMoving(s_pose, goal, 0.03, joint):
+		while self.notMoving(s_pose, goal, 0.1, joint):
 			self.log('Not moving..', 'warn')
 			if relative:
 				self.emulator.moveRelative(joint, goal, t)
@@ -160,6 +174,7 @@ class Core:
 			time.sleep(0.2)
 			if time.time()-st_time > timeout: 
 				self.log('MoveOne command timeout!', 'error')
+				return 0
 				break
 		if blocking: time.sleep(t)
 		self.log('Move '+str(joint)+' to ' +  str(goal)+' successfully!')
@@ -174,7 +189,7 @@ class Core:
 			self.emulator.moveAbsolute('all', pose, t)
 		st_time = time.time()
 		time.sleep(0.4)
-		while self.notMoving(s_pose, pose, 0.05):
+		while self.notMoving(s_pose, pose, 0.1):
 			self.log('Not moving..', 'warn')
 			if relative:
 				self.emulator.moveRelative('all', pose, t)
@@ -183,6 +198,7 @@ class Core:
 			time.sleep(0.2)
 			if time.time()-st_time > timeout: 
 				self.log('MoveTo command timeout!', 'error')
+				return 0
 				break
 		if blocking: time.sleep(t)
 		self.log('Move to ' +  str(pose)+' successfully!')
@@ -216,12 +232,13 @@ class Core:
 		self.log('Trajectory vector: '+str(p)+'\n'+str(v)+'\n'+str(t))
 		self.emulator.sendViaPoints(p, v, t)
 		s_pose = self.getStates()
-		while self.notMoving(s_pose, first_vias, 0.02):
+		while self.notMoving(s_pose, first_vias, 0.05):
 			time.sleep(0.2)
 			self.log('Not moving..', 'warn')
 			self.emulator.sendViaPoints(p, v, t)
 			if time.time()-st_time > timeout: 
 				self.log('Execute trajectory command timeout!', 'error')
+				return 0
 				break
 		if blocking: time.sleep(sum(t))
 		self.log('Trajectory is successfully executed!')
@@ -306,8 +323,11 @@ class Core:
 				if not joint_states == -1:
 					self.status1.data = joint_states[2][0]
 					self.status2.data = joint_states[2][1]
-					pos_states = joint_states[0]
-					vel_states = joint_states[1]
+					if (self.getStatus()[0] & 0b00000010)>>1:
+						pos_states = joint_states[0]+[0.069]
+					else:
+						pos_states = joint_states[0]+[0]
+					vel_states = joint_states[1]+[0]
 					now = rospy.get_rostime()
 					self.joint_msg.header.stamp = now
 					self.joint_msg.position = pos_states
@@ -385,9 +405,9 @@ class Core:
 				pose.orientation.z = 0.9073
 				pose.orientation.w = -0.08874
 			elif binIdx == 1:
-				# pose.position.x = x_offset -0.05
+				pose.position.x = x_offset +0.05
 				# pose.position.y = binMsg.velocity[binIdx]
-				# pose.position.z = binMsg.position[binIdx]+(0.56-0.4)*sin(0.5236)
+				pose.position.z = binMsg.position[binIdx]+(0.56-x_offset+0.05)*sin(0.5236)
 				pose.orientation.x = 0.2588
 				pose.orientation.y = 1e-7
 				pose.orientation.z = 0.9659
@@ -431,7 +451,7 @@ class Core:
 			guarded = self.kin_solver.computeIKranged(target, offset = self.offset[t_name], lb = (0, 0, -pi), ub = (0, 0, pi))
 		return config_list, guarded
 
-	def placeTrash(self, trash, binMsg, x_offset = 0.45, guarded_offset = 0.07):
+	def placeTrash(self, trash, binMsg, x_offset = 0.45, guarded_offset = 0.13):
 		t_stand = str(trash.position.z)[0] 
 		t_type = str(trash.position.z)[1] 
 
@@ -444,10 +464,12 @@ class Core:
 			bN = 'blue'
 			iS = 1
 		bI = binMsg.name.index(bN)
+		if bI is 1:
+			guarded_offset-=0.025
 		
 		config_list = self.kin_solver.computeIK(Core.toBin(binMsg, binIdx = bI, isSnack = iS), offset = self.offset[t_name])
 		
-		guarded = self.kin_solver.computeIK(Core.toBin(binMsg, binIdx = bI, isSnack = iS, x_offset = 0.56), offset = self.offset[t_name])
+		guarded = self.kin_solver.computeIK(Core.toBin(binMsg, binIdx = bI, isSnack = iS, x_offset = x_offset+guarded_offset), offset = self.offset[t_name])
 
 		return config_list, guarded
 

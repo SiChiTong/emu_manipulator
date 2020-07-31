@@ -146,8 +146,8 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
         return mask
     
     # parameter
-    yHsv = [19, 51, 154, 35, 255, 255]
-    gHsv = [37, 23, 70, 86, 255, 255]
+    yHsv = [19, 51, 100, 35, 255, 255]
+    gHsv = [37, 10, 50, 86, 255, 255]
     bHsv = [90, 40, 70, 162, 255, 255]
     
     yShapeLab = [0, 79, 87, 110, 179, 148]
@@ -169,7 +169,7 @@ def detectBin(img,binScaleWorld,binScalePixel,mode=0):
     for ind in range(3):
         # color segment with hsv
         mask = colorSegment(img,hsvList[ind])
-        mask = cv2.morphologyEx(mask,cv2.MORPH_OPEN, np.ones((7,7),np.uint8))
+        mask = cv2.morphologyEx(mask,cv2.MORPH_OPEN, np.ones((21,21),np.uint8))
         # cv2.imshow('clrseg',mask)
         # cv2.waitKey()
         # get bin contours
@@ -276,9 +276,15 @@ def getBinList(Cam,BinScaleWorld,BinScalePixel,frame,mode=0):
         y = binList[i].getHolePtsWorld(1)
         z = 0 
         f = transFrameBinToBase(x,y,z,binFrameHeight)
-        if f[2,3]>=0.7:
-            f[2,3]+=0.02
-        
+        # if f[2,3]>=0.7:
+        #     f[2,3]=0.76
+        # elif f[2,3]>=0.6:
+        #     f[2,3]=0.66
+        # elif f[2,3]>=0.5:
+        #     f[2,3]=0.56
+        # elif f[2,3]>=0.4:
+        #     f[2,3]=0.46
+            
         pts = (f[0,3],f[1,3],f[2,3])
         
         binList[i].setHoleRealPtsWorld(pts)

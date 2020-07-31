@@ -244,7 +244,7 @@
         <parent link="link_2"/>
         <child link="link_3"/>
         <axis xyz = "0 0 1"/>
-        <limit lower = "-1.4312" upper = "4.1190" effort = "1000" velocity = "2.5" acceleration = "1"/>
+        <limit lower = "-1.4312" upper = "1.6" effort = "1000" velocity = "2.5" acceleration = "1"/>
         <origin rpy="0 0 1.57075" xyz = "0 0.4 0"/>
         <dynamics damping="0.1"/>
     </joint>
@@ -288,21 +288,21 @@
         <child link="sliding_jaw"/>
         <axis xyz = "0 0 1"/>
         <limit lower = "0" upper = "0.0715" effort = "10" velocity = "5" acceleration = "10"/>
-        <origin rpy="1.57075 0 0" xyz = "0 0.0178 0.1205"/>
+        <origin rpy="1.57075 0 0" xyz = "0 0.0178 0.1095"/>
     </joint>
 
     <joint name="grasp_frame_transform" type="fixed">
         <parent link="tool_base"/>
         <child link="grasp_frame"/>
         <axis xyz = "0 0 1"/>
-        <origin rpy="0 0 0" xyz = "0 -0.033 0.1205"/>
+        <origin rpy="0 0 0" xyz = "0 -0.033 0.1095"/>
     </joint>
 
     <joint name="suction_frame_transform" type="fixed">
         <parent link="tool_base"/>
         <child link="suction_frame"/>
         <axis xyz = "0 0 1"/>
-        <origin rpy="0 0 0" xyz = "0 -0.0923 0.1602"/>
+        <origin rpy="0 0 0" xyz = "0 -0.0923 0.1492"/>
     </joint>
 
     <transmission name="tran1">

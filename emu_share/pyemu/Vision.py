@@ -18,7 +18,7 @@ from geometry_msgs.msg import PoseArray,Pose
 def getTypeTrashEle(trash):
     return trash.getType()
 class Vision():
-    def __init__(self,debug = False,emuLog=None):
+    def __init__(self,debug = False,emuLog=None,init_model = True):
         self.WIDTH = 1024
         self.HEIGHT = 576
         self.CALIBRATE = True
@@ -31,7 +31,8 @@ class Vision():
         self.TrayRight = Tray()
         self.Cam = Camera(self.WIDTH, self.HEIGHT, self.CALIBRATE)
         self.video = self.Cam.open(self.CAMINDEX)
-        self.model = initModel(self.TESTTHRESHOLD,self.CLASSNUM)
+        if init_model:
+            self.model = initModel(self.TESTTHRESHOLD,self.CLASSNUM)
         self.debug = debug
         self.binImg = None
         self.log = emuLog
@@ -106,8 +107,13 @@ class Vision():
     def findTrash(self,traySide,panomode=0,persmode=0,testImg=None):
         if traySide == 'l':
             Tray1 = self.TrayLeft
+            wScale = 1.286/1008
+            hScale = 0.565 / 440
         elif traySide == 'r':    
             Tray1 = self.TrayRight
+            wScale = 1.2/1008
+            hScale = 0.55 / 440
+        print("len pano",len(Tray1.pano))
         if len(Tray1.pano) == 3 or testImg != None:
             frame = perspecTray(Tray1,panomode,persmode,traySide,debug=self.debug)
             Tray1.clearPano()
@@ -117,8 +123,7 @@ class Vision():
                 cv2.imshow('frame',frame)
                 cv2.waitKey(0)
                 
-            wScale = 1.286/1008
-            hScale = 0.565 / 440
+            
                 # feed persTray to model
             print("start predict")
             outputs = self.model(frame)

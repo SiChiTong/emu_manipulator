@@ -12,7 +12,7 @@ from geometry_msgs.msg import PoseArray,Pose
 from sensor_msgs.msg import Image
 
 import cv2
-v = Vision(debug = True)
+v = Vision(debug = True,init_model = False)
 rospy.init_node('vision', anonymous=True)
 pubTrashPose = rospy.Publisher('/emu/vision/trash_poses', PoseArray, queue_size = 20)
 pubLeftTray = rospy.Publisher('/emu/vision/left_tray', Image, queue_size = 0,latch=True)
@@ -21,10 +21,10 @@ pubRightTray = rospy.Publisher('/emu/vision/right_tray', Image, queue_size = 20,
 # cv2.waitKey(0)
 # bins = cv2.imread(package_path+'/bin14.jpg')
 img = v.snapBinImg()
-v.getBin(mode=1)
+v.getBin(mode=0)
 cv2.waitKey(0)
 # print("snappano")
-# traySide = 'l'
+# traySide = 'r'
 # # # v.snapPano(traySide,testImg = package_path+'/deploy1.jpg')
 # v.snapPano(traySide)
 
