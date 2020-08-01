@@ -23,7 +23,7 @@ class Vision():
         self.HEIGHT = 576
         self.CALIBRATE = True
         self.CAMINDEX = 0
-        self.TESTTHRESHOLD = 0.9
+        self.TESTTHRESHOLD = 0.88
         self.BinScaleWorld = [0.775,0.508] # setnew scale
         self.BinScalePixel = [1024,576] # set newscale
         self.CLASSNUM = 3
@@ -111,8 +111,8 @@ class Vision():
             hScale = 0.565 / 440
         elif traySide == 'r':    
             Tray1 = self.TrayRight
-            wScale = 1.2/1008
-            hScale = 0.55 / 440
+            wScale = 1.3/1008
+            hScale = 0.555 / 440
         print("len pano",len(Tray1.pano))
         if len(Tray1.pano) == 3 or testImg != None:
             frame = perspecTray(Tray1,panomode,persmode,traySide,debug=self.debug)

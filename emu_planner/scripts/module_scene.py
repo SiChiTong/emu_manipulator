@@ -34,7 +34,7 @@ moveit_commander.roscpp_initialize(sys.argv)
 rospy.init_node('modules_state_validator', anonymous=True)
 
 b_off = 0.066
-inf_off = -0.08
+inf_off = -0.085
 
 def setBin(scene, order = ['blue', 'yellow', 'green'], z = [0, 0, 0], y = [0.3, 0, -0.3]):
     global b_off

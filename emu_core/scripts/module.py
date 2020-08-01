@@ -2,8 +2,8 @@ self.log('+++ Initializing Module Script +++')
 
 #Publishing fake Trashes and Bins ==================================================
 # binMsg = JointState()
-# binMsg.name = ['yellow', 'green', 'blue']
-# binMsg.position = [0.56, 0.76, 0.76]
+# binMsg.name = ['blue', 'green', 'yellow']
+# binMsg.position = [0.66, 0.66, 0.56]
 # binMsg.velocity = [0.31, 0, -0.32]
 
 # poseList = [[0.10599999999999998, 0.75, 11, -0.004222495939768292, 0.9999910852242827, -6.123179408479028e-17, -2.585533068524967e-19],
@@ -36,12 +36,13 @@ self.log('+++ Initializing Module Script +++')
 #=======================================================================================
 
 # real Image =======================================================================
-def visionSetup(self):
-    self.moveTo(self.preconfig_pose['bin_snap'],12, blocking = 1)
-    time.sleep(0.5)
+def binSetup(self):
     self.vision.snapBinImg()
     binMsg = self.vision.getBin()
     self.bin_poses_publisher.publish(binMsg)
+    return binMsg
+
+def traySetup(self):
     # test_1 = Pose()
     # test_1.position.x = 0.4
     # test_1.position.y = binMsg.velocity[0]
@@ -87,7 +88,7 @@ def visionSetup(self):
     self.trash_poses_publisher.publish(trashMsg)
     # self.moveTo(self.preconfig_pose['home'],10, blocking = 1)
     # self.log('Moving done!')
-    return binMsg, trashMsg
+    return trashMsg
 
 #===============================================================================================
 
@@ -97,17 +98,17 @@ def transferTrash(self, idx, binMsg):
         self.release()
         self.setOD(4, 0)
         trash = trashMsg.poses[idx]
-        z_o = 0.15
+        z_o = 0.14
         t_stand = str(trash.position.z)[0] 
         t_type = str(trash.position.z)[1] 
         if not t_type == '3':
             if t_stand == '1':
                 g_o = 0.08
             elif t_stand == '2':
-                z_o = 0.115
+                z_o = 0.108
                 g_o = 0
         else:
-            g_o = 0.155
+            g_o = 0.146
             self.grip()
 
         i = JointState()
@@ -116,12 +117,17 @@ def transferTrash(self, idx, binMsg):
         g = JointState()
         g.name = i.name
 
-        self.log('Solving for all picking configuration...')
-        tmp_cfg, tmp_grd = self.pickTrash(trash, z_offset = z_o, guarded_offset = g_o)
-        self.log('Finding the best picking configuration...')
-        pick_cfg = self.getValidPath(tmp_cfg, q_now = self.getStates()) if len(tmp_cfg) > 1 else tmp_cfg[0]
-        self.log('Finding the best guarded picking configuration...')
-
+        try:
+            self.log('Solving for all picking configuration...')
+            tmp_cfg, tmp_grd = self.pickTrash(trash, z_offset = z_o, guarded_offset = g_o)
+            self.log('Finding the best picking configuration...')
+            pick_cfg = self.getValidPath(tmp_cfg, q_now = self.getStates()) if len(tmp_cfg) > 1 else tmp_cfg[0]
+            self.log('Finding the best guarded picking configuration...')
+        except:
+            trashMsg.poses.remove(trash)
+            self.trash_poses_publisher.publish(trashMsg)
+            return 0
+        
         trashMsg.poses.remove(trash)
         self.trash_poses_publisher.publish(trashMsg)
 
@@ -142,6 +148,7 @@ def transferTrash(self, idx, binMsg):
         if not self.executeTrajectory(pick_path, blocking = 1): return 0
         time.sleep(0.5)
         
+        # Guarded picking
         if t_stand != '2': 
             if not self.moveTo(list(pick_grd), 2, blocking = 1): 
                 return 0
@@ -181,15 +188,31 @@ def transferTrash(self, idx, binMsg):
         self.setOD(4, 0)
 
 
+self.moveTo(self.preconfig_pose['bin_snap'],12, blocking = 1)
+time.sleep(0.5)
 
-binMsg, trashMsg = visionSetup(self)
+for _ in range(5):
+    try:
+        binMsg = binSetup(self)
+        break
+    except:
+        self.log('Bin not found!', 'warn')
+    time.sleep(0.5)
 binMsg.velocity = [0.315, 0, -0.315]
-# idx = 2
-for c in range(len(trashMsg.poses)):
-    transferTrash(self, 0, binMsg)
-    self.log('Pick count: {}'.format(c))
-self.release()
 
-# transferTrash(self, 4, binMsg)
+while 1:
+    trashMsg = traySetup(self)
+    for c in range(len(trashMsg.poses)):
+        transferTrash(self, 0, binMsg)
+        self.log('Pick count: {}'.format(c))
+    self.release()
+    a = input('Continue? (Y/n): ')
+    if str(a).lower() == 'y':
+        pass
+    else:
+        break
+
+self.log('Finished program cleanly!')
+# transferTrash(self, 5, binMsg)
 
 

@@ -419,8 +419,8 @@ def make0TrayHomo(traySide):
                     [0,sin(pi), cos(pi),0],
                     [0,0,0,1]])
     elif traySide == 'r':
-        h = np.matrix([[cos(pi),0,sin(pi),0.22+0.346+0.192],
-                    [0,1, 0, -0.49-0.555],
+        h = np.matrix([[cos(pi),0,sin(pi),0.22+0.346+0.195],
+                    [0,1, 0, -0.495-0.555],
                     [-sin(pi),0, cos(pi),0],
                     [0,0,0,1]])
     return h

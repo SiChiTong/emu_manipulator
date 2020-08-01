@@ -36,14 +36,14 @@ class Core:
 			'tray_left_1': [pi/2, 0.09, 0.1503, 1.6, 0, 0],
 			'tray_left_2': [pi/2, 0.09, 0.1503, 1.45, 0, 0],
 			'tray_left_3': [pi/2, 0.09, 0.1503, 1.25, 0, 0],
-			'tray_right_1': [-pi/2, 0.09, 0.1503, 1.8, 0, 0],
-			'tray_right_2': [-pi/2, 0.09, 0.1503, 1.6, 0, 0],
+			'tray_right_1': [-pi/2, 0.09, 0.1503, 1.75, 0, 0],
+			'tray_right_2': [-pi/2, 0.09, 0.1503, 1.55, 0, 0],
 			'tray_right_3': [-pi/2, 0.09, 0.1503, 1.4, 0, 0],
 			'transition' : [0,0,0.8,0,0.5,0],
 			'zero': [0, 0, 0, 0, 0, 0]}
-		self.offset = {'bottle': (0, 0.033, -0.1205), 
-				'can': (0, 0.038, -0.1205), 
-				'snack': (0, 0.0923, -0.1602)}
+		self.offset = {'bottle': (0, 0.033, -0.1095), 
+				'can': (0, 0.038, -0.1095), 
+				'snack': (0, 0.0923, -0.1492)}
 		self.lock = 0
 		self.port = _port
 		self.emulator = pyemu.Emuart(self.port)
@@ -180,7 +180,7 @@ class Core:
 		self.log('Move '+str(joint)+' to ' +  str(goal)+' successfully!')
 		return 1
 
-	def moveTo(self, pose, t, relative = 0, blocking = 0, timeout = 30):
+	def moveTo(self, pose, t, relative = 0, blocking = 0, timeout = 15):
 		self.log('Moving to ' +  str(pose))
 		s_pose = self.getStates()
 		if relative:
@@ -214,7 +214,7 @@ class Core:
 		except rospy.ServiceException as e:
 			self.log("Service call failed: %s"%e)
 
-	def executeTrajectory(self, joint_trajectory, blocking = 0, timeout = 30):
+	def executeTrajectory(self, joint_trajectory, blocking = 0, timeout = 15):
 		p,v,t = [[],[],[],[],[],[]],[[],[],[],[],[],[]],[]
 		lt = 0
 		first_vias = joint_trajectory.points[1].positions

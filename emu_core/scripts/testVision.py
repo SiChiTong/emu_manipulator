@@ -12,7 +12,7 @@ from geometry_msgs.msg import PoseArray,Pose
 from sensor_msgs.msg import Image
 
 import cv2
-v = Vision(debug = True,init_model = False)
+v = Vision(debug = True,init_model = True)
 rospy.init_node('vision', anonymous=True)
 pubTrashPose = rospy.Publisher('/emu/vision/trash_poses', PoseArray, queue_size = 20)
 pubLeftTray = rospy.Publisher('/emu/vision/left_tray', Image, queue_size = 0,latch=True)
@@ -20,25 +20,25 @@ pubRightTray = rospy.Publisher('/emu/vision/right_tray', Image, queue_size = 20,
 # cv2.namedWindow('test ai')
 # cv2.waitKey(0)
 # bins = cv2.imread(package_path+'/bin14.jpg')
-img = v.snapBinImg()
-v.getBin(mode=0)
-cv2.waitKey(0)
+# img = v.snapBinImg()
+# v.getBin(mode=0)
+# cv2.waitKey(0)
 # print("snappano")
-# traySide = 'r'
-# # # v.snapPano(traySide,testImg = package_path+'/deploy1.jpg')
-# v.snapPano(traySide)
+traySide = 'l'
+# # v.snapPano(traySide,testImg = package_path+'/deploy1.jpg')
+v.snapPano(traySide)
 
-# cv2.waitKey(0)
-# # # v.snapPano(traySide,testImg = package_path+'/deploy2.jpg')
+cv2.waitKey(0)
+# # v.snapPano(traySide,testImg = package_path+'/deploy2.jpg')
 
-# v.snapPano(traySide)
-# cv2.waitKey(0)
-# # # v.snapPano(traySide,testImg = package_path+'/deploy3.jpg')
+v.snapPano(traySide)
+cv2.waitKey(0)
+# # v.snapPano(traySide,testImg = package_path+'/deploy3.jpg')
 
-# v.snapPano(traySide)
-# cv2.waitKey(0)
-# trashPose,pickTrashImg,trashNum = v.findTrash(traySide,panomode=0,persmode=0)
-# print("Getted trash")
+v.snapPano(traySide)
+cv2.waitKey(0)
+trashPose,pickTrashImg,trashNum = v.findTrash(traySide,panomode=0,persmode=0)
+print("Getted trash")
 # # cv2.imwrite(package_path+"/getPickedTrash.jpg",v.getPickedTrash(traySide))
 
 # cv2.imshow("getPickedTrash",v.getPickedTrash(traySide))
